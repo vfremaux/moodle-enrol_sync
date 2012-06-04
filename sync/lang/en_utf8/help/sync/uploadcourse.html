@@ -1,0 +1,143 @@
+<!-- $Id: uploadcourse.html,v 1.2 2011-07-25 13:30:04 vf Exp $ -->
+
+<h1>Importation pour l'ajout ou la suppresion de cours de cours</h1>
+
+<h2>Ajout de cours</h2>
+
+<p>L'importation de cours permet de pouvoir créer un grand nombre de cours. Plusieurs options sur l'importation est disponible. Par exemple, il est possible d'associer à un cours des professeurs <strong>sous reserve qu'ils soient enregistrés en base de donnée</strong>.</p>
+
+<p>Si vous désirez importer manuellement des cours à partir d'un fichier texte, ce fichier doit être formaté de la façon suivante :</p>
+
+<ul>
+
+<li>chaque ligne du fichier contient un enregistrement.</li>
+
+<li>les données de chaque enregistrement sont séparées par une virgule (ou un autre caractère de séparation).</li>
+
+<li>le premier enregistrement contient le nom des champs qui composent les enregistrements, et détermine ainsi la structure de la suite du fichier.
+
+    <blockquote>
+
+      <center><table border="1" style="font-family:monospace;font-size:8pt;width:500px;">
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>category</td><td>[Forward]Slash-Delimited Category &quot;Path&quot; String (new categories are created as necessary) OR Integer Database Category ID</td></tr>
+<tr><td>cost</td><td>String(10)</td></tr>
+<tr><td>enrolperiod</td><td>Integer/Seconds</td></tr>
+<tr><td>enrollable</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>enrolstartdate</td><td>String Date Literal</td></tr>
+<tr><td>enrolenddate</td><td>String Date Literal</td></tr>
+<tr><td>expirynotify</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>expirythreshold</td><td>Integer Value Between 10-30</td></tr>
+<tr><td>format</td><td>String('social','topics','weeks')</td></tr>
+<tr><td>fullname</td><td>String(254)</td></tr>
+<tr><td>groupmode</td><td>0=NOGROUPS,1=SEPARATEGROUPS,2=VISIBLEGROUPS</td></tr>
+<tr><td>groupmodeforce</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>guest</td><td>0=NO,1=YES,2=WITHKEY</td></tr>
+<tr><td>idnumber</td><td>String(100)</td></tr>
+<tr><td>lang</td><td>String(10)</td></tr>
+<tr><td>maxbytes</td><td>Integer(Site Max)</td></tr>
+<tr><td>metacourse</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>newsitems</td><td>Integer(10)</td></tr>
+<tr><td>notifystudents</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>numsections</td><td>Integer(52)</td></tr>
+<tr><td>password</td><td>String(50)</td></tr>
+<tr><td>shortname</td><td>String(15)</td></tr>
+<tr><td>showgrades</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>showreports</td><td>0=FALSE,1=TRUE</td></tr>
+<tr><td>sortorder</td><td>Integer</td></tr>
+<tr><td>startdate</td><td>String Date Literal</td></tr>
+<tr><td>student</td><td>String(100)</td></tr>
+<tr><td>students</td><td>String(100)</td></tr>
+<tr><td>summary</td><td>Text</td></tr>
+<tr><td>teacher</td><td>String(100)</td></tr>
+<tr><td>teachers</td><td>String(100)</td></tr>
+<tr><td>teacher[1,2,...]_account</td><td>Search String that returns only one User Account (as used in <a href="user.php" target="_blank">Administration &raquo; Edit user accounts</a> OR Integer Database User ID</td></tr>
+<tr><td>teacher[1,2,...]_role</td><td>String(40)</td></tr>
+<tr><td>template</td><td>String</td></tr>
+<tr><td>theme</td><td>String(50)</td></tr>
+<tr><td>timecreated</td><td>String Date Literal</td></tr>
+<tr><td>timemodified</td><td>String Date Literal</td></tr>
+<tr><td>topic0 [main heading], topic1 ... topic52 [topic/week headings]</td><td>Text</td></tr>
+<tr><td>visible</td><td>0=FALSE,1=TRUE</td></tr>
+</table></center>
+
+    </blockquote>
+
+    </li>
+
+  <li>Les virgules séparant les données doivent être encodées &amp;#44 - le script les interprétera automatiquement comme des virgules.</li>
+
+  <li>Pour les données booléennes, utilisez 0 pour faux et 1 pour vrai. </li>
+
+</ul>
+
+<p>Voici un exemple de fichier d'importation correct et complet :</p>
+
+<p>fullname, shortname, category, summary, teacher, teachers, student, students, startdate, visible, groupmode, password, teacher1_account, teacher1_role<br/>
+Cours numero 1, import01, /COURS/Unit1, Ceci est un cours importé, Lecturer, Lecturers, Drunkard, Drunkards, 1-Apr-09, 1, 0, , , <br/>
+Cours numero 2, import02, /COURS/Unit1, Ceci est un cours importé protégé par un password, Lecturer, Lecturers, Drunkard, Drunkards, 1-Apr-09, 1, 0, mdp, , 
+</p>
+
+
+<h2>Suppression des cours</h2>
+
+<p>Il est egalement possible de supprimer des cours en important un fichier texte. Il faut alors utiliser uniquement le shortname du cours pour le désigner.</p>
+
+<p>Exemple de document pour la suppression :</p>
+<p align="center">idnumber1<br/>
+idnumber2
+</p>
+
+
+<h2>Test d'existence de cours</h2>
+
+<p>Un outils de test massif d'existence de cours vous permet de vérifier automatiquement si une série de cours appartient à moodle.<br/>
+Un fichier de rapport est généré et est disponible dans le répertoire sync/reports de votre moodledata.<br/>
+Il est consultable dans la fenêtre de gestion manuelle des tests d'existence de cours.</p>
+
+<p>Exemple de document pour le test :</p>
+<p align="center">idnumber1,Description<br/>
+idnumber2,Description
+</p>
+
+
+<h2>Réinitialisation massive de cours</h2>
+
+<p>Cet outil vous permet de réinitialiser plusieurs cours.<br/>
+Il ne fonctionne bien entendu pas sous execution cron !</p>
+
+   <blockquote>
+
+      <center><table border="1" style="font-family:monospace;font-size:8pt;width:500px;">
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>[required] shortname</td><td> shortname du cours</td></tr>
+<tr><td>[required] events</td><td> yes/no </td></tr>
+<tr><td>[required] logs</td><td> yes/no </td></tr>
+<tr><td>[required] notes</td><td> yes/no </td></tr>
+<tr><td>[required] grades</td><td> items/grades/nothing </td></tr>
+<tr><td>[required] roles</td><td> 'guest admin student teacher editingteacher' </td></tr>
+<tr><td>[required] groupes</td><td> members/groupes/nothing</td></tr>
+<tr><td>[required] modules</td><td> <ol><li>all : tous les modules</li><li>Sinon une succession de nom de modules</li><li>Possibilité de selectionner par défaut</li></ol></td></tr>
+<tr><td>[optional] forum_all</td><td> 1/0 </td></tr>
+<tr><td>[optional] forum_subscriptions</td><td> 1/0 </td></tr>
+<tr><td>[optional] chat</td><td> 1/0 </td></tr>
+<tr><td>[optional] ...</td><td> 1/0 </td></tr>
+</table></center>  </blockquote><br/>
+
+<p>
+<i>Note au développeur </i>: en créant dans vos modules resetlib.php à la racine et en écrivant la fonction '$modname'_reset_course_form_definition renvoyant un array des variables de réinitialisation, vous pouvez rendre compatible votre module avec ce script. Pensez également à compléter les fonctions '$modname'_reset_course_form_default dans lib.php de votre module.</p>
+  
+
+<p>Exemple de document pour la réinitialisation :</p>
+<p align="center">
+shortname, roles, grades, groupes, events, logs, notes, modules<br/>
+short321, guest admin student teacher editingteacher, grades, members, no, yes, yes, all<br/>
+short322, student, items, groupes, yes, yes, yes, all<br/>
+short323, student teacher editingteacher, grades, members, yes, no, no, -forum -chat<br/>
+</p>
+</p>
+</p>
+</p>
+</p>
+<p align="center"><i>La troisième ligne correspond à: tous les modules sauf le forum et le chat</i></p>
+

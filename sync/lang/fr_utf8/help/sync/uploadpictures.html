@@ -1,0 +1,32 @@
+<!-- $Id: uploadpictures.html,v 1.1 2011-12-17 12:35:57 vf Exp $ -->
+
+<h1>Synchronisation des avatars</h1>
+
+<p>Si votre système de gestion stocke des avatars d'utilisateurs (trombinoscope), ce service permet 
+	d'organiser une synchronisation des images associées aux utilisateurs de Moodle. Il automatise 
+	la fonction Administration &gt; Utilisateurs &gt; Comptes &gt; Déposer des utilisateurs de la 
+	version standard de Moodle.</p>
+	
+<p>Pour synchroniser des avatars d'utilisateurs, vous devez constituer un fichier archive compressé
+	(ZIP) avec les fichiers images. Vous pouvez choisir l'un des champs d'identification des utilisateurs
+	qui sont proposés dans la configuration du service. Les noms d'image doivent à ce moment être construits
+sur cette base :</p>
+
+<p><pre>&lt;%valeurid%&gt;.gif ou &lt;%valeurid%&gt;.jpg</pre></p>
+
+<p>Le fichier zip doit comporter un préfixe reconnaissable que vous pouvez configurer par le paramètre userpictures_fileprefix. L'ordre d'évaluation est l'ordre alphabetique du nom de fichier (physique). Vous pouvez cadencer un examen successif de plusieurs mises à jour si par exemple vous nommez vos fichiers selon une séquence temporelle :</p>
+
+<p>Exemple :</p>
+<p><pre>userpictures_20111201.zip
+userpictures_20111202.zip
+userpictures_20111203.zip
+...
+</pre></p>
+
+<h3>Archivage et nettoyage</h3>
+<p>Les fichiers traités peuvent être archivés si l'option générale d'archivage est activée. Ils peuvent être supprimés après traitement
+	si l'opétion générale de suppression est activée, ou si l'option particulière de suppression des fichiers source d'avatars est activée.
+</p>
+
+<h3>Exécution temporisée et rapport</h3>
+<p>L'exécutino de l'import d'avatar est exécutée APRES la synchronisation des utilisateurs. Le rapport d'exécutino est aggrégé au rapport global pour une exécutio temporisée</p>

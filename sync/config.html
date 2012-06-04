@@ -1,0 +1,271 @@
+<fieldset>
+	<legend><strong><?php print_string('configuration') ?></strong></legend>
+
+	<table cellspacing="0" cellpadding="5" border="0" class="boxaligncenter" width="100%">					
+		<tr valign="top">
+			<td align="right"><?php print_string('synccourses','enrol_sync') ?></td>
+			<td>
+				<input type="checkbox" value="1" name="sync_courseactivation" <?php if (@$frm->sync_courseactivation) echo "checked=\"checked\"" ?> />
+			</td>
+			<td>
+				<?php print_string('coursescronconfig','enrol_sync') ?>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td align="right"><?php print_string('syncusers','enrol_sync') ?></td>
+			<td>
+				<input type="checkbox" value="1" name="sync_useractivation" <?php if (@$frm->sync_useractivation) echo "checked=\"checked\"" ?> />
+			</td>
+			<td>
+				<?php print_string('userscronconfig','enrol_sync') ?>
+			</td>
+		</tr>
+
+		<tr valign="top">
+			<td align="right"><?php print_string('syncuserpictures','enrol_sync') ?></td>
+			<td>
+				<input type="checkbox" value="1" name="sync_userpicturesactivation" <?php if (@$frm->sync_userpicturesactivation) echo "checked=\"checked\"" ?> />
+			</td>
+			<td>
+				<?php print_string('userpicturescronconfig','enrol_sync') ?>
+			</td>
+		</tr>
+		
+		<tr valign="top">
+			<td align="right"><?php print_string('syncenrols','enrol_sync') ?></td>
+			<td>
+				<input type="checkbox" value="1" name="sync_enrolactivation" <?php if (@$frm->sync_enrolactivation) echo "checked=\"checked\"" ?> />
+			</td>
+			<td>
+				<?php print_string('enrolscronconfig','enrol_sync') ?>
+			</td>
+		</tr>
+		<tr>
+			<td align="right"><?php print_string('encoding','enrol_sync') ?></td>
+			<td>
+				<select name="sync_encoding">
+					<option value="UTF-8" <?php if(@$frm->sync_encoding == "UTF-8"){ echo ' selected="selected"'; } ?> >UTF-8</option>
+					<option value="ISO-8859-1"  <?php if(@$frm->sync_encoding == "ISO-8859-1"){ echo ' selected="selected"'; }?> >ISO-8859-1</option>
+				</select>	
+			</td>
+			<td ><?php print_string('selectencoding','enrol_sync') ?></td>
+		</tr>
+		<tr>
+			<td align="right"><?php print_string('csvseparator','enrol_sync') ?></td>
+			<td>
+				<select name="sync_csvseparator">
+					<option value="," <?php if(@$frm->sync_csvseparator == ","){ echo ' selected="selected"'; } ?> >,</option>
+					<option value=";"  <?php if(@$frm->sync_csvseparator == ";"){ echo ' selected="selected"'; }?> >;</option>
+				</select>	
+			</td>
+			<td ><?php print_string('selectseparator','enrol_sync') ?></td>
+		</tr>
+	</table>		
+	</fieldset>
+	<fieldset>
+	<legend><strong><?php print_string('run', 'enrol_sync') ?></strong></legend>
+		<table cellspacing="0" cellpadding="5" border="0" width="100%" class="boxaligncenter">		
+			<tr valign="top">
+				<td align="right"><?php print_string('day_mon','enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Mon" <?php if (@$frm->sync_Mon) echo "checked=\"checked\"" ?> />
+				</td>
+				<td align="right"><?php print_string('hour', 'enrol_sync') ?></td>
+				<td align="left">
+				
+					<SELECT name="sync_h">
+					<?php
+						echo "<option value=\"0\"";
+							if (($frm->sync_h)=="0"){
+								echo " selected=\"selected\"";
+							}
+						echo ">0 ";
+						print_string('hour', 'enrol_sync'); 
+						echo "</option>";
+						
+						echo "<option value=\"1\"";
+							if (($frm->sync_h)=="1"){
+								echo " selected=\"selected\"";
+							}
+						echo ">1 ";
+						print_string('hour', 'enrol_sync');
+						echo "</option>";	
+						
+						$i = 2;
+						while($i < 24){
+							echo "<option value=\"$i\"";
+							if (($frm->sync_h) == "$i"){
+								echo " selected=\"selected\"";
+							}
+							echo ">$i ";
+							print_string('hour','enrol_sync');
+							echo "s</option>";
+							$i = $i + 1;
+						}
+					?>
+					</select>
+
+				
+				</td>
+			</tr>			
+			<tr valign="top">
+				<td align="right"><?php print_string('day_tue', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Tue" <?php if (@$frm->sync_Tue) echo "checked=\"checked\"" ?> />
+				</td>
+				<td align="right"><?php print_string('minute', 'enrol_sync') ?> </td>
+				
+				<td align="left">
+				
+					<SELECT name="sync_m">
+					<?php
+						echo "<option value=\"0\"";
+							if (($frm->sync_m)=="0"){
+								echo " selected=\"selected\"";
+							}
+						echo ">0 ";
+						print_string('minute', 'enrol_sync');
+						echo "</option>";
+						
+						
+						$i=5;
+						while($i<60){
+							echo "<option value=\"$i\"";
+							if (($frm->sync_m)=="$i"){
+								echo " selected=\"selected\"";
+							}
+							echo ">$i ";
+							print_string('minute', 'enrol_sync');
+							echo "s</option>";
+							$i=$i+5;
+						}
+					?>
+					</select>	
+
+				</td>
+			</tr>			
+				
+			<tr valign="top">
+				<td align="right"><?php print_string('day_wed', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Wed" <?php if (@$frm->sync_Wed) echo "checked=\"checked\"" ?> />
+				</td>
+			</tr>	
+
+			<tr valign="top">
+				<td align="right"><?php print_string('day_thu', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Thu" <?php if (@$frm->sync_Thu) echo "checked=\"checked\"" ?> />
+				</td>
+			</tr>			
+
+			<tr valign="top">
+				<td align="right"><?php print_string('day_fri', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Fri" <?php if (@$frm->sync_Fri) echo "checked=\"checked\"" ?> />
+				</td>
+			</tr>			
+				
+			<tr valign="top">
+				<td align="right"><?php print_string('day_sat', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Sat" <?php if (@$frm->sync_Sat) echo "checked=\"checked\"" ?> />
+				</td>
+			</tr>	
+				
+			<tr valign="top">
+				<td align="right"><?php print_string('day_sun', 'enrol_sync') ?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_Sun" <?php if (@$frm->sync_Sun) echo "checked=\"checked\"" ?> />
+				</td>
+				<td align="right"><?php print_string('critical_time', 'enrol_sync') ?> </td>
+				<td align="left">
+
+					<select name="sync_ct">
+					<?php
+						
+						$i = 60;
+						while($i < 180){
+							echo "<option value=\"$i\"";
+							if (($frm->sync_ct) == "$i"){
+								echo " selected=\"selected\"";
+							}
+							echo ">$i ";
+							print_string('minute', 'enrol_sync');
+							echo "s</option>";
+							$i = $i + 10;
+						}
+					?>
+					</select>	
+
+				</td>
+			</tr>	
+		</table>
+</fieldset>	
+<fieldset>
+	<legend><strong><?php print_string('final_action', 'enrol_sync')?></strong></legend>
+
+		<table cellspacing="0" cellpadding="5" border="0" class="boxaligncenter" width="100%">
+
+		<!--	<tr valign="top">
+				<td align="right">sync_coursescleanup:</td>
+				<td>
+					<input type="checkbox" value="1" name="sync_coursescleanup" <?php if ($frm->sync_coursescleanup) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					Effacer les cours qui sont présent dans moodle mais absent dans le fichier pivot
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td align="right">sync_userscleanup:</td>
+				<td>
+					<input type="checkbox" value="1" name="sync_userscleanup" <?php if ($frm->sync_userscleanup) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					Effacer les utilisateurs qui sont présent dans moodle mais absent dans le fichier pivot
+				</td>
+			</tr>
+		-->
+			<tr valign="top">
+				<td align="right"><?php print_string('group_clean', 'enrol_sync')?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_enrolcleanup" <?php if ($frm->sync_enrolcleanup) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					<?php print_string('group_cleanex', 'enrol_sync')?>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td align="right"><?php print_string('filearchive', 'enrol_sync')?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_filearchive" <?php if (!empty($frm->sync_filearchive)) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					<?php print_string('archivecontrolfiles', 'enrol_sync')?>
+				</td>
+			</tr>			
+			
+			<tr valign="top">
+				<td align="right"><?php print_string('failedfile', 'enrol_sync')?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_filefailed" <?php if (!empty($frm->sync_filefailed)) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					<?php print_string('makefailedfile', 'enrol_sync')?>
+				</td>
+			</tr>			
+			
+			<tr valign="top">
+				<td align="right"><?php print_string('filecleanup', 'enrol_sync')?></td>
+				<td>
+					<input type="checkbox" value="1" name="sync_filecleanup" <?php if (!empty($frm->sync_filecleanup)) echo "checked=\"checked\"" ?> />
+				</td>
+				<td>
+					<?php print_string('deletecontrolfiles', 'enrol_sync')?>
+				</td>
+			</tr>			
+
+		</table>
+</fieldset>

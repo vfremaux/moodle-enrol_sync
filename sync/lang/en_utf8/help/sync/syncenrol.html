@@ -1,0 +1,115 @@
+<!-- $Id: syncenrol.html,v 1.3 2011-12-17 16:28:57 vf Exp $ -->
+
+<h1>Synchronisation of enrolments file based</h1>
+
+<h2>Description</h2>
+
+<p>This features completes the standard file based enrolment adding automation. Groupes are handled so are hidden role assignations.</p>
+
+<p>The control file for enrolments can use several verbs (i.e. commands) in order to alter role and group assignations within a course.</p>
+
+<table border="1" width="500" align="center">
+<tr>
+
+<th>Field</th><th>Data type or sample</th><th>Comment</th>
+</tr>
+<tr>
+<td>cmd</td><td>'add', 'del' or 'shift' </td><td>Verb</td>
+</tr>
+<tr>
+<td>rolename</td><td>'student', 'teacher'...</td><td>Role shortname</td>
+</tr>
+<tr>
+<td>cid </td><td>String ID</td><td>Course external IDnumber</td>
+</tr>
+<tr>
+<td>uid</td><td>String ID</td><td>User external IDnumber</td>
+</tr>
+<tr>
+<td>hidden</td><td>0 or 1 	</td><td>Hidden assignation switch</td>
+</tr>
+<tr>
+<td>gcmd</td><td>'gadd', 'gaddcreate', 'greplace', 'greplacecreate'</td><td>Group verb</td>
+</tr>
+<tr>
+<td>g1</td><td>String</td><td>Group name</td>
+</tr>
+<tr>
+<td>g<n></td><td>String</td><td>Group names</td>
+</tr></table>
+
+<h2>Detail:</h2>
+
+<ul>
+<li><b>cmd</b>: Assignation command<br/><br/>
+
+Tells what to do:<br/><br/>
+
+    <ol><b>'add'</b>: Add assignation to the given role in course cid. Other assignations remain.</ol><br/>
+    <ol><b>'del'</b>: Deletes assignation for role rolename. If rolename is empty (or do not match any existing role name), then all assignations are removed. Assignations to upper contexts (catgories, system context) are NEVER altered by a deletion.</ol><br/>
+    <ol><b>'shift'</b>: Assigns to the given role after having removed all other assignations. Equivalent to a pair of 'del' than 'add'.</ol><br/>
+
+This field is mandatory inthe file, and cannot be empty.<br/><br/>
+</li>
+
+<li>
+<b>rolename</b> : Role shortname<br/><br/>
+
+Most common cases will use "student", "teacher" or "editingteacher".<br/>
+
+Any role can be used.<br/>
+
+Si un identifant de rôle n'existe pas, la ligne par dans le traitement d'erreur standard et est reproduite dans le "fichier des défectueux".<br/><br/>
+</li>
+
+
+<li>
+cid : Identifiant du cours<br/><br/>
+
+Il s'agit de l'IDnumber du cours. Cet IDNumber a été initalisé lors de la synchronisation des cours par la première procédure.<br/>
+
+Si l'identifiant n'est pas trouvé ou incorrect, aucune assignation de s'effectue (ni sous opération de groupe) et l'enregistrement est reproduit dans le "fichiers des défectueux".<br/>
+Cette colonne est OBLIGATOIRE.<br/><br/>
+</li>
+
+
+<li>
+uid : Identifiant de l'utilisateur<br/><br/>
+
+Il s'agit de l'IDnumber de l'utilisateur. Cet ID a été injecté par le traitement de syncheronisation/création des utilisateurs (deuxième étape du processus).<br/>
+
+Si l'ID n'est pas trouvé ou est vide, aucune assignation de s'effectue (ni sous opération de groupe) et l'enregistrement est reproduit dans le "fichiers des défectueux".<br/>
+
+Cette colonne est OBLIGATOIRE.<br/><br/>
+</li>
+
+
+<li>
+hidden : Attribution cachée<br/><br/>
+
+Si elle est présente dans le fichier, elle permet de rendre cachée ou visible l'assignation de rôle.<br/>
+
+Cette colonne n'est pas obligatoire.<br/><br/>
+</li>
+
+
+<li>
+gcmd : Commande de groupe<br/><br/>
+
+La commande groupe permet d'indiquer une sous commande d'affectation de groupe dans le cours identifié par CID.<br/>
+
+Cette commande peut valoir :<br/><br/>
+
+    <ol>'gadd' : ajoute les assignations de groupe à l'utilisateur désigné par UID dans le cours CID. Les groupes à attribuer sont les groupes mentionnées dans toutes les colonnes restantes, intitulées g1... à gn</ol><br/>
+    <ol>'greplace' : ajoute les assignations de groupe à l'utilisateur désigné par UID dans le cours CID, après avoir supprimé toutes les assignations existantes. Les groupes à attribuer sont les groupes mentionnées dans toutes les colonnes restantes, intitulées g1... à gn</ol>
+<br/><br/>
+</li>
+	
+	
+	<li>
+g1 ... gn : Colonnes de groupes<br/><br/>
+
+Des colonnes textes en nombre non limité portant le nom des groupes en texte.
+</li>
+
+

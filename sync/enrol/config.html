@@ -1,0 +1,39 @@
+<fieldset>
+	<legend><strong><?php print_string('enrolsconfig', 'enrol_sync') ?></strong></legend>
+
+	<table cellspacing="0" cellpadding="5" border="0" class="boxaligncenter">
+
+	<tr valign="top">
+		<td align="right">enrol_filelocation (csv):</td>
+		<td>
+			<input type="text" size="20" name="enrol_filelocation" value="<?php echo @$frm->enrol_filelocation ?>" />
+		</td>
+		<td align="right">
+			<?php  print_string('location', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right">enrol_mailadmins:</td>
+		<td>
+			<input type="checkbox" value="1" name="enrol_mailadmins" <?php if (@$frm->enrol_mailadmins) echo "checked=\"checked\"" ?> />
+		</td>
+		<td>
+			<?php  print_string('mailadmins') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right">enrol_defaultcmd:</td>
+		<td>
+			<select name="enrol_defaultcmd">
+				<option value="add" <?php if ((@$frm->enrol_defaultcmd) != 'del') echo "selected=\"selected\""; ?>>add</option>
+				<option value="del"<?php if ((@$frm->enrol_defaultcmd) == 'del') echo "selected=\"selected\""; ?>>del</option>
+			</input>
+		</td>
+		<td>
+			<?php print_string('configdefaultcmd', 'enrol_sync'); ?>
+		</td>
+	</tr>		
+	</table>
+</fieldset>

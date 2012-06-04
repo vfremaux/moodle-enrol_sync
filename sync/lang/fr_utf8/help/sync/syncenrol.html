@@ -1,0 +1,119 @@
+<!-- $Id: syncenrol.html,v 1.3 2011-12-17 16:28:58 vf Exp $ -->
+
+<h1>Synchronisation des enrols a partir d'un fichier csv pivot</h1>
+
+<h2>Description</h2>
+
+<p>Cette fonction est un complément du systeme d'enrol par fichier plat. Il gère les groupes et permet de créer des rôles en hidden</p>
+
+
+<p>Le fichier des enrollements présente un certain nombre d'ordres ou opérations qui conduisent à la modification des assignations de rôle des utilisateurs dans les cours.</p>
+
+<table border="1" width="500" align="center">
+<tr>
+
+<th>Champs</th><th>Type de donnée </th><th>Commentaire</th>
+</tr>
+<tr>
+<td>cmd </td><td>'add', 'del', 'shift' </td><td>Commande</td>
+</tr>
+<tr>
+<td>rolename </td><td>	'student', 'teacher',... </td><td>Code de role</td>
+</tr>
+<tr>
+<td>cid </td><td>Code texte </td><td>Identifiant externe de cours</td>
+</tr>
+<tr>
+<td>uid </td><td>Code texte</td><td>Identifiant externe d'utilisateur</td>
+</tr>
+<tr>
+<td>hidden</td><td> 	0 ou 1 	</td><td>Attribution cachée</td>
+</tr>
+<tr>
+<td>gcmd </td><td>	'gadd', 'greplace' </td><td>	Commande de groupe</td>
+</tr>
+<tr>
+<td>g1 </td><td>	Texte </td><td>	Nom de groupe</td>
+</tr>
+<tr>
+<td>... </td><td>	Texte </td><td>	Nom de groupe </td>
+</tr></table>
+
+
+<h2>Détail des champs :</h2>
+
+<ul>
+<li><b>cmd</b> : Champ de commande<br/><br/>
+
+Ce champ détermine une action :<br/><br/>
+
+    <ol><b>'add'</b> : Ajoute le role dans le cours désigné par cid. Les assignations existantes ne sont pas enlevées.</ol><br/>
+    <ol><b>'del'</b> : Supprime l'assignation du rôle désigné par rolename. Si rolename ne mentionne aucun nom de rôle, alors toutes les assignations existantes sur le cours sont enlevées. Les assignations "au dessus" du cours (catégories, système) ne sont jamais affectées par une suppression.</ol><br/>
+    <ol><b>'shift'</b> : Ajoute ce role en ayant supprimé toutes les autres assignations. Equivaut à un "delete" puis "add", mais en une seule ligne.</ol><br/>
+
+Cette colonne est OBLIGATOIRE, la valeur ne peut être vide.<br/><br/>
+</li>
+
+<li>
+<b>rolename</b> : Nom identifiant du rôle<br/><br/>
+
+Il s'agit de l'indentifiant (shortname) du rôle Moodle. Les cas les plus courant seront 'student' pour un étudiant et 'teacher' pour un enseignant.<br/>
+
+Les autres rôles sont possibles.<br/>
+
+Si un identifant de rôle n'existe pas, la ligne par dans le traitement d'erreur standard et est reproduite dans le "fichier des défectueux".<br/><br/>
+</li>
+
+
+<li>
+<b>cid</b> : Identifiant du cours<br/><br/>
+
+Il s'agit de l'IDnumber du cours. Cet IDNumber a été initalisé lors de la synchronisation des cours par la première procédure.<br/>
+
+Si l'identifiant n'est pas trouvé ou incorrect, aucune assignation de s'effectue (ni sous opération de groupe) et l'enregistrement est reproduit dans le "fichiers des défectueux".<br/>
+Cette colonne est OBLIGATOIRE.<br/><br/>
+</li>
+
+
+<li>
+<b>uid</b> : Identifiant de l'utilisateur<br/><br/>
+
+Il s'agit de l'IDnumber de l'utilisateur. Cet ID a été injecté par le traitement de syncheronisation/création des utilisateurs (deuxième étape du processus).<br/>
+
+Si l'ID n'est pas trouvé ou est vide, aucune assignation de s'effectue (ni sous opération de groupe) et l'enregistrement est reproduit dans le "fichiers des défectueux".<br/>
+
+Cette colonne est OBLIGATOIRE.<br/><br/>
+</li>
+
+
+<li>
+<b>hidden</b> : Attribution cachée<br/><br/>
+
+Si elle est présente dans le fichier, elle permet de rendre cachée ou visible l'assignation de rôle.<br/>
+
+Cette colonne n'est pas obligatoire.<br/><br/>
+</li>
+
+
+<li>
+<b>gcmd</b> : Commande de groupe<br/><br/>
+
+La commande groupe permet d'indiquer une sous commande d'affectation de groupe dans le cours identifié par CID.<br/>
+
+Cette commande peut valoir :<br/><br/>
+
+    <ol>'gadd' : ajoute les assignations de groupe à l'utilisateur désigné par UID dans le cours CID. Les groupes à attribuer sont les groupes mentionnées dans toutes les colonnes restantes, intitulées g1... à gn. Les groupes manquants dans le cours sont ignorés.</ol><br/>
+    <ol>'gaddcreate' : Idem, mais les groupes manquants sont créés.</ol><br/>
+    <ol>'greplace' : ajoute les assignations de groupe à l'utilisateur désigné par UID dans le cours CID, après avoir supprimé toutes les assignations existantes. Les groupes à attribuer sont les groupes mentionnées dans toutes les colonnes restantes, intitulées g1... à gn. Les groupes manquants sont ignorés.</ol>
+    <ol>'greplacecreate' : Idem, mais les groupes manquants sont créés.</ol>
+<br/><br/>
+</li>
+	
+	
+<li>
+<b>g1 ... gn</b> : Colonnes de groupes<br/><br/>
+
+Des colonnes textes en nombre non limité portant le nom des groupes en texte.
+</li>
+
+
