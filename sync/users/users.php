@@ -125,7 +125,6 @@ class users_plugin_manager {
 				'timezone' => 1);
 		$optional = array('idnumber' => 1,
 				'email' => 1,               //*NT* email is optional on upload to clear open ones  and reset at the beginning of the year!
-				'wwwroot' => 1, // allows MNET propagation to remote node
 				'auth' => 1,
 				'icq' => 1,
 				'phone1' => 1,
@@ -143,8 +142,16 @@ class users_plugin_manager {
 				'role1' => 1,
 				'start1' => 1,
 				'end1' => 1,
+				'wwwroot1' => 1, // allows MNET propagation to remote node
 				'password' => $createpassword,
 				'oldusername' => $allowrenames);
+			$patterns = array('course',
+				'group',
+				'type',
+				'role',
+				'start',
+				'end',
+				'wwwroot');
 
 		// --- get header (field names) ---
 
@@ -168,7 +175,8 @@ class users_plugin_manager {
 		foreach ($headers as $h) {
 			$header[] = trim($h); 
 		
-			if (!(isset($required[$h]) or isset($optionalDefaults[$h]) or isset($optional[$h]))) {
+			$patternized = implode('|', $patterns) . "\\d+";
+			if (!(isset($required[$h]) or isset($optionalDefaults[$h]) or isset($optional[$h]) or preg_match("/$patternized/", $h))) {
 				enrol_sync_report($CFG->userlog, get_string('invalidfieldname', 'error', $h));
 				return;
 			}
@@ -267,7 +275,7 @@ class users_plugin_manager {
 					$coursetoadd->role = isset($user->$roleix) ? $user->$roleix : NULL;
 					$coursetoadd->start = isset($user->$startix) ? $user->$startix : 0;
 					$coursetoadd->end = isset($user->$endix) ? $user->$endix : 0;
-					$coursetoadd->wwwroot = isset($user->$wwwrootix) ? $user->$wwwrootix : 0;
+					$coursetoadd->wwwroot = isset($user->$wwwrootix) ? $user->$wwwrootix : '';
 					$addcourses[] = $coursetoadd;
 					$ci++;
 					$courseix = 'course'.$ci;
@@ -300,15 +308,16 @@ class users_plugin_manager {
 				}
 
 				if (empty($user->mnethostid)) $user->mnethostid = $CFG->mnet_localhost_id;
+				$idnumber = @$user->idnumber;
 				if ($olduser = get_record('user', 'username', $username, 'mnethostid', $user->mnethostid)) {
 					if ($updateaccounts) {
 						// Record is being updated
 						$user->id = $olduser->id;
 						if (update_record('user', $user)) {
-							enrol_sync_report($CFG->userlog, get_string('useraccountupdated', 'enrol_sync', "$user->username ($user->idnumber)"));
+							enrol_sync_report($CFG->userlog, get_string('useraccountupdated', 'enrol_sync', "$user->username ($idnumber)"));
 							$usersupdated++;
 						} else {
-							enrol_sync_report($CFG->userlog, get_string('usernotupdatederror', 'error', "$username ($user->idnumber)"));
+							enrol_sync_report($CFG->userlog, get_string('usernotupdatederror', 'error', "$username ($idnumber)"));
 							$userserrors++;
 							continue;
 						}
@@ -335,7 +344,7 @@ class users_plugin_manager {
 						}
 					} else {
 						// Record not added -- possibly some other error
-						enrol_sync_report($CFG->userlog, get_string('usernotaddederror', 'error', "$username ($user->idnumber)"));
+						enrol_sync_report($CFG->userlog, get_string('usernotaddederror', 'error', "$username ($idnumber)"));
 						$userserrors++;
 						continue;
 					}
@@ -463,7 +472,7 @@ class users_plugin_manager {
 			                			enrol_sync_report($CFG->userlog, get_string('communicationerror', 'enrol_sync'));
 				                	} else {
 				                		$u->username = $user->username;
-				                		$u->wwwroot = $record['wwwroot'];
+				                		$u->wwwroot = $c->wwwroot;
 			                			enrol_sync_report($CFG->userlog, get_string('usercreatedremotely', 'enrol_sync', $u));
 				                		$created = true;
 				                	}
@@ -485,7 +494,9 @@ class users_plugin_manager {
 			                		// in case this block is installed, mark access authorisations in the user's profile
 			                		if (file_exists($CFG->dirroot.'/blocks/user_mnet_hosts/xlib.php')){
 			                			include_once($CFG->dirroot.'/blocks/user_mnet_hosts/xlib.php');
-			                			user_mnet_host_add_access($user, $c->wwwroot);
+			                			if ($error = user_mnet_host_add_access($user, $c->wwwroot)){
+		                					enrol_sync_report($CFG->userlog, get_string('errorsettingremoteaccess', 'enrol_sync', $error));
+			                			}
 			                		}
 			                		
 			                		$e->username = $user->username;
@@ -502,6 +513,19 @@ class users_plugin_manager {
 			}
 		}
 		fclose($fp);
+
+		if (!empty($CFG->sync_filearchive)){
+			$archivename = basename($filename);
+			$now = date('Ymd-hi', time());
+			$archivename = $CFG->dataroot."/sync/archives/{$now}_users_$archivename";
+			copy($filename, $archivename);
+		}
+		
+		if (!empty($CFG->sync_filecleanup)){
+			@unlink($filename);
+		}		
+		
+		return true;
     }
 }
 

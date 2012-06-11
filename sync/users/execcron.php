@@ -27,15 +27,15 @@
 	$usersmanager = new users_plugin_manager;
 
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
-			  'url' => $CFG->wwwroot.'/enrol/sync/sync.php',
-			  'type' => 'link');
-	$navlinks[] = array('name' => get_string('usersmgt', 'enrol_sync'),
-			  'url' => null,
+			  'link' => $CFG->wwwroot.'/enrol/sync/sync.php',
+			  'type' => 'url');
+	$navlinks[] = array('name' => get_string('usermgtmanual', 'enrol_sync'),
+			  'link' => null,
 			  'type' => 'title');
 	
 	print_header("$site->shortname", $site->fullname, build_navigation($navlinks));
 	
-	print_heading_with_help(get_string('userheader', 'enrol_sync'), 'uploadcourse', 'enrol_sync');
+	print_heading_with_help(get_string('usermgtmanual', 'enrol_sync'), 'uploadcourse', 'enrol_sync');
 
 	$usersmanager->process_config($CFG);
 	echo '<pre>';

@@ -33,7 +33,7 @@
 	
 	$navlinks[] = array(
 			'name' => get_string('synchronization', 'enrol_sync'),
-			'link' => $CFG->wwwroot.'/admin/sync.php',
+			'link' => $CFG->wwwroot.'/enrol/sync/sync.php',
 			'type' => 'url'
 		);
 	$navlinks[] = array(

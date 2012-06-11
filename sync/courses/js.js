@@ -36,7 +36,7 @@ function selectcourses(courses, courseselection){
 
 function select_all(frm){
 	for(i = 0 ; i < frm.courselist.length ; i++){
-		frm.courselist.options[i].selected = true;
+		frm.courselist.options[i].selected = false;
 	}
 	frm.courselist.name = "liste_champs[]";
 	for(i = 0 ; i < frm.selection.length ; i++){

@@ -116,6 +116,7 @@
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/resetcourses.php\">". get_string('reinitialisation', 'enrol_sync') .'</a><br/>';		
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/synccourses.php\">". get_string('manualuploadrun', 'enrol_sync') .'</a><br/>';
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/deletecourses.php\"> ". get_string('manualdeleterun', 'enrol_sync') . '</a><br/><br/>';
+	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/clearemptycategories.php\"> ". get_string('manualcleancategories', 'enrol_sync') . '</a><br/><br/>';
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/execron.php\"> ". get_string('executecoursecronmanually', 'enrol_sync') .'</a><br/>';
 	echo '<br/>';
 	echo '</center></fieldset>';

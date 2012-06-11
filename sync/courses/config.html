@@ -14,6 +14,19 @@
 		</tr>
 
 		<tr valign="top">
+			<td align="right"><?php print_string('deletefileidentifier', 'enrol_sync') ?></td>
+			<td>
+			<?php  
+			if (!isset($frm->course_filedeleteidentifier)) set_config('course_filedeleteidentifier', 0);
+			$identifieroptions = array('0' => 'idnumber', '1' => 'shortname', '2' => 'id');
+			choose_from_menu($identifieroptions, 'course_filedeleteidentifier', $frm->course_filedeleteidentifier); 
+			?>
+			</td>
+			<td>
+			</td>
+		</tr>
+
+		<tr valign="top">
 			<td align="right"><?php print_string('uploadfile', 'enrol_sync') ?></td>
 			<td>
 				<input type="text" size="20" name="course_fileuploadlocation" value="<?php echo $frm->course_fileuploadlocation ?>" />

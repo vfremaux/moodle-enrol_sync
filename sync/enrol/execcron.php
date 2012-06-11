@@ -19,16 +19,16 @@
     $enrolmanager = new enrol_plugin_manager;
 	
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
-			  'url' => $CFG->wwwroot.'/enrol/sync/sync.php',
-			  'type' => 'link');
-	$navlinks[] = array('name' => get_string('enrolsmgt', 'enrol_sync'),
-			  'url' => null,
+			  'link' => $CFG->wwwroot.'/enrol/sync/sync.php',
+			  'type' => 'url');
+	$navlinks[] = array('name' => get_string('enrolmgtmanual', 'enrol_sync'),
+			  'link' => null,
 			  'type' => 'title');
 
 	print_header("$site->shortname", $site->fullname, 
                  build_navigation($navlinks));
 	
-	print_heading_with_help(get_string('enrolsmgt', 'enrol_sync'), 'uploadcourse');
+	print_heading_with_help(get_string('enrolmgtmanual', 'enrol_sync'), 'uploadcourse');
 
 	$enrolmanager->process_config($CFG);
 	echo "<pre>";

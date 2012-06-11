@@ -1,0 +1,34 @@
+<!-- $Id: uploadpictures.html,v 1.1 2011-12-17 12:35:57 vf Exp $ -->
+
+<h1>User pictures synchronisation</h1>
+
+<p>If your learning administration management system stores pictures for users, this tool let you 
+	get them synchronized in Moodle. The action of this tool is to automatize through cron 
+	the standard interactive function Administration &gt; Users &gt; Accounts &gt; "Upload user pictures" from standard 
+	Moodle administration.</p>
+	
+<p>To synchronize user pictures, you need get pictures within a compressed archive. You can choose which
+	identifying attribute is to be used to match users with images. Image file names will comply the 
+	folowing construction rule:</p>
+
+<p><pre>&lt;%valueid%&gt;.gif ou &lt;%valueid%&gt;.jpg</pre></p>
+
+<p>The zip file can be droped into the %%dataroot%%/sync directory by your administration application, and should use a discriminating
+	 filename prefix that you will mention in the userpictures_fileprefix setup parameter. Files are processed in the directory
+	 alphabetic order. Thus you can sequence the processing of several picture files, providing appropriate filenames...</p>
+
+<p>Example :</p>
+<p><pre>userpictures_20111201.zip
+userpictures_20111202.zip
+userpictures_20111203.zip
+...
+</pre></p>
+
+<h3>Archiving and cleanup</h3>
+<p>Picture files will be archived after processing if the global archiving option is enabled. Optionally, original files will be discarded, 
+	if the global cleanup feature is enabled, or if the special user picture cleanup forcing option is enabled.
+</p>
+
+<h3>Automated execution and reporting</h3>
+<p>User pictures synchronisation will be processed after user synchronisation. When croned, the user picture report is added to the general 
+	scheduled report.</p>

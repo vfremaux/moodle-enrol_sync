@@ -55,6 +55,11 @@ class courses_plugin_manager {
 	        $config->course_filedeletelocation = '';
 	    }
 	    set_config('course_filedeletelocation', $config->course_filedeletelocation);
+
+	    if (!isset($config->course_filedeleteidentifier)) {
+	        $config->course_filedeleteidentifier = 0;
+	    }
+	    set_config('course_filedeleteidentifier', $config->course_filedeleteidentifier);
 		
 	
 	    if (!isset($config->course_fileuploadlocation)) {
@@ -145,9 +150,9 @@ class courses_plugin_manager {
 
 						// give report on missing courses
 						if(!$course){
-							enrol_sync_report($CFG->courselog, get_string('coursenotfound2', 'enrol_sync', $c));
+							enrol_sync_report($CFG->courselog, get_string('coursenotfound2', 'enrol_sync', $course));
 						} else {
-							enrol_sync_report($CFG->courselog, get_string('coursefoundas', 'enrol_sync', $c));
+							enrol_sync_report($CFG->courselog, get_string('coursefoundas', 'enrol_sync', $course));
 						}
 					}
 					
@@ -177,15 +182,18 @@ class courses_plugin_manager {
 					if (sync_is_empty_line_or_format($text, $i)){
 						continue;
 					}			
-					$shortnames[] = $text;											
+					$identifiers[] = $text;											
 				}
 				
 				// Fill this with a list of comma seperated id numbers to delete courses.
 				$deleted = 0;
 				
-				foreach($shortnames as $shortname) {
-					if(!($c = get_record('course', 'shortname', $shortname)) ) {
-						enrol_sync_report($CFG->courselog, get_string('coursenotfound', 'enrol_sync', $shortname));
+				$identifieroptions = array('idnumber', 'shortname', 'id');
+				$identifiername = $identifieroptions[0 + @$CFG->course_filedeleteidentifier];
+				
+				foreach($identifiers as $cid) {
+					if(!($c = get_record('course', $identifiername, addslashes($cid))) ) {
+						enrol_sync_report($CFG->courselog, get_string('coursenotfound', 'enrol_sync', $cid));
 						if (!empty($CFG->sync_filefailed)) sync_feed_tryback_file($this->controlfiles->deletion, $text, null);
 						$i++;
 						continue;
@@ -193,7 +201,7 @@ class courses_plugin_manager {
 
 					if(delete_course($c->id, false)) {
 						$deleted++;
-						enrol_sync_report($CFG->courselog, get_string('coursedeleted', 'enrol_sync', $shortname));
+						enrol_sync_report($CFG->courselog, get_string('coursedeleted', 'enrol_sync', $cid));
 					}
 				}
 				
@@ -447,7 +455,7 @@ class courses_plugin_manager {
             	$a->fullname = $bulkcourse['fullname'];
 
 	            // Try to create the course
-	            if (!$oldcourse = get_record('course', 'shortname', $bulkcourse['shortname'])) {
+	            if (!$oldcourse = get_record('course', 'shortname', addslashes($bulkcourse['shortname']))) {
 	              
 	                $coursetocategory = 0; // Category ID
 	                
@@ -636,9 +644,6 @@ class courses_plugin_manager {
 	*
 	*/
     function get_default_category() {
-        static $mysqlresource1;
-        static $cat;
-
         global $CFG;
         global $USER;
 
@@ -839,7 +844,7 @@ class courses_plugin_manager {
 	                  
 	                  	$item = trim($item); // Remove outside whitespace
 	                  
-	                  	if (strlen($item) > 30){ 
+	                  	if (strlen($item) > 100){ 
 		                	$e->i = $lineno;
 		                	$e->fieldname = $fieldname;
 		                	$e->item = $item;
@@ -943,12 +948,6 @@ class courses_plugin_manager {
             2   :   Created new category successfully
         */
         
-        static $mysqlresource1;
-        static $mysqlresource2;
-        static $cat;
-        
-        static $cname;
-        
         global $CFG;
         global $USER;
         
@@ -1000,25 +999,22 @@ class courses_plugin_manager {
 		if(!is_array($course) || !is_array($header) || !is_array($validate)) {
 			return -2;
 		}  
+
+		// trap when template not found
+		if(isset($course['template']) && $course['template'] != '') {			
+			if(!($tempcourse = get_record('course','shortname', $course['template']))){
+				return -7;
+			}
+
+			if (!$pathname = $this->delivery_check_available_backup($tempcourse->id)){
+				return -7;
+			}
+
+		}
 		 
-        // declaring as static prevents object pointers being continually created and destroyed, saving time in theory
-        static $courseid;
-        static $mysqlresource1;
-        static $mysqlresource2;
-        static $mysqlresource3;
-        static $mysqlresource4;  
-        static $dcomma; // Creating SQL for composite fields
-        static $dtopics;
-        static $dtopicno;
-        static $dtopicname;
-        static $dteachers;
-        static $dteacherno;
-        static $dteacherdata;
-			
 		// Dynamically Create Query Based on number of headings excluding Teacher[1,2,...] and Topic[1,2,...]
         // Added for increased functionality with newer versions of moodle
 		// Author: Ashley Gooding & Cole Spicer
-		static $tempstring;
 		
 		$courserec->category = $hcategory;
 		foreach ($header as $i => $col) {
@@ -1039,16 +1035,10 @@ class courses_plugin_manager {
 		create_context(CONTEXT_COURSE, $courserec->id);
 		
 		if(isset($course['template']) && $course['template'] != '') {
-			
-			if(!($tempcourse = get_record('course','shortname', $course['template']))){
-				return -7;
-			}
-			
-			$pathname = $this->delivery_check_available_backup($tempcourse->id);
-			
+						
 			import_backup_file_silently($pathname->path, $courserec->id, true, false, array('restore_course_files' => 1));
 			
-			$c = '';
+			$c = new StdClass;
 			foreach ($header as $col) {
 
 				$col = strtolower($col);
@@ -1088,9 +1078,6 @@ class courses_plugin_manager {
         	blocks_repopulate_page($page); // Setup blocks
 		}
         
-        $dtopics = ''; // String concatenation for topic INSERT
-        $dcomma = false; // Should we add a comma before the next item?
-        
         if (isset($course['topics'])) { // Any topic headings specified ?
             foreach($course['topics'] as $dtopicno => $dtopicname) 
             if ($dtopicno <= $course['numsections']) { // Avoid overflowing topic headings
@@ -1117,9 +1104,6 @@ class courses_plugin_manager {
 	        }
         }
         
-        $dteachers = ''; // String concatenation for topic INSERT
-        $dcomma = false; // Should we add a comma before the next item?
-        				
 		if (!$context = get_context_instance(CONTEXT_COURSE, $courserec->id)) {
         	return -6;
     	}
@@ -1169,7 +1153,6 @@ class courses_plugin_manager {
 			$backup_shortname = preg_replace('/(_(\d+))+$/' , '', $backup_shortname);
 		}
 		
-
 		//Calculate the final backup filename
 		//The backup word
 		$backup_pattern = $backup_word."-";

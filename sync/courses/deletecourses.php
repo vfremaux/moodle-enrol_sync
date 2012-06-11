@@ -47,34 +47,47 @@
     );
 	
 	print_header("$site->shortname: $strdeletecourses", $site->fullname, build_navigation($navlinks));
-
 	print_heading_with_help(get_string('coursedeletion', 'enrol_sync'), 'coursedeletion', 'enrol_sync');
 
 // Page controller
 
 	if(!isset($_POST['ids'])) {
-		// If there is a file to upload... do it... else do the rest of the stuff
-		$um = new upload_manager('deletefile', false, false, null, false, 0);
-		
-	    if (isset($um->files['deletefile'])) {
-			// All file processing stuff will go here. ID=2...
-	  		notify(get_string('parsingfile', 'enrol_sync'), 'notifysuccess');
-	
-			$um->preprocess_files();
-			
-			$filename = $um->files['deletefile']['tmp_name'];
-		} 
 
-		if ($uselocal = optional_param('uselocal', false, PARAM_BOOL)){
+		// Start page... display instructions and upload buttons etc...
+		print_box_start();
+		print_string('deletefileinstructions', 'enrol_sync');
+		print_box_end();
+		
+		echo '<br/><br/>';
+			
+		sync_print_remote_tool_portlet('deletefromremote', $CFG->wwwroot.'/enrol/sync/courses/deletecourses.php', 'deletefileupload', 'upload');
+		sync_print_local_tool_portlet($CFG->course_filedeletelocation, 'deletefile', 'deletecourses.php');
+	
+		// If there is a file to upload... do it... else do the rest of the stuff
+		
+		$um = new upload_manager('deletefileupload', false, false, null, false, 0);
+		
+	    if ($um->preprocess_files() || isset($_POST['uselocal'])) {
+
+			// All file processing stuff will go here. ID=2...
+		    if (isset($um->files['deletefileupload'])) {
+				// All file processing stuff will go here. ID=2...
+		  		notify(get_string('parsingfile', 'enrol_sync'), 'notifysuccess');		
+		  		$systemfilename = $um->files['deletefileupload']['tmp_name'];
+		  		$filename = $CFG->dataroot.'/temp/'.basename($systemfilename);
+		  		copy($systemfilename, $filename);
+		  		@unlink($systemfilename);
+			} 
+	
+			$uselocal = optional_param('uselocal', false, PARAM_BOOL);
 			if(!empty($uselocal)){
-				$filename = $CFG->course_filedeletelocation;
+				$filename = $CFG->file_course_exist;
 				$filename = $CFG->dataroot.'/'.$filename;
 			}
 		}
-		
 
+		// now with a filename build the confirmation form		
 		if (isset($filename)){
-
 			$i = 0;
 			$file = @fopen($filename, 'rb', 0);
 
@@ -86,7 +99,7 @@
 						$i++;
 						continue;
 					}
-					$shortnames[] = trim($text);
+					$identifiers[] = trim($text);
 				}
 				fclose($file);
 			}
@@ -99,21 +112,22 @@
 			$deleteids = '';
 			$idnums = array();
 			
-			foreach($shortnames as $shortname) {
-				$report = optional_param('report', false, PARAM_BOOL);
-	
-				if(!($course = get_record('course', 'shortname', $shortname))) {
+			$identifieroptions = array('idnumber', 'shortname', 'id');
+			$identifiername = $identifieroptions[0 + @$CFG->course_filedeleteidentifier];
+			$report = optional_param('report', false, PARAM_BOOL);
+			
+			foreach($identifiers as $cid) {
+				if(!($c = get_record('course', $identifiername, addslashes($cid))) ) {
 					// Say we couldnt find that course
-					notify(get_string('coursenodeleteadvice', 'enrol_sync', $shortname), 'notifyproblem');
+					notify(get_string('coursenodeleteadvice', 'enrol_sync', $cid), 'notifyproblem');
 					continue;
 				}
 				
-				if(!empty($idnums[$course->id])) {
+				if(!empty($idnums[$c->id])) {
 					continue;
 				} else {
-					$idnums[$course->id] = $course->fullname;
+					$idnums[$c->id] = $c->fullname;
 				}
-				
 			}
 			
 			// Remove last comma
@@ -141,7 +155,7 @@
 			if (!empty($idnums)){
 				echo '<form method="post" action="deletecourses.php">';
 				echo '<input type="hidden" name="ids" value="'.$deleteids.'">';
-				echo '<input type="hidden" name="using" value="'.htmlentities($filename, ENT_QUOTES, 'UTF-8').'">';
+				echo '<input type="hidden" name="using" value="'.basename($filename).'">';
 				echo '<input type="submit" value="'.get_string('confirm', 'enrol_sync').'">';
 				echo '</form>';
 			}
@@ -185,7 +199,7 @@
         enrol_sync_report($CFG->deletereport, get_string('totaltime', 'enrol_sync').' '.round(($time_end - $time_start),2).' s');		
 
 		if (!empty($CFG->sync_filearchive)){
-			$filename = required_param('using', PARAM_TEXT);
+			$filename = $CFG->dataroot.'/temp/'.required_param('using', PARAM_TEXT);
 			$archivename = basename($filename);
 			$now = date('Ymd-hi', time());
 			$archivename = $CFG->dataroot."/sync/archives/deletion_{$now}_$archivename";
@@ -197,17 +211,6 @@
 		}
  	}
 
-	// Start page... display instructions and upload buttons etc...
-	print_box_start();
-	print_string('deletefileinstructions', 'enrol_sync');
-	print_box_end();
-	
-	echo '<br/><br/>';
-		
-	sync_print_remote_tool_portlet('deletefromremote', $CFG->wwwroot.'/enrol/sync/deletecourses.php', 'filedelete', 'confirmdelete');
-
-	sync_print_local_tool_portlet($CFG->course_filedeletelocation, 'deletefile', 'deletecourses.php');
-	
 	$returntotoolsstr = get_string('returntotools', 'enrol_sync');
 	// always return to main tool view.
 	echo '<center>';

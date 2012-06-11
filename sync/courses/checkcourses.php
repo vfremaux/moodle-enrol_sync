@@ -93,20 +93,16 @@
 	}	
 
 	echo '<br/><br/><fieldset><legend><strong>'.get_string('displayoldreport', 'enrol_sync').'</strong></legend>';
-	$handle = @opendir("$CFG->dataroot/sync/reports");
+	$entries = glob($CFG->dataroot."/sync/reports/UC_*");
 	$filecabinetstr = get_string('filecabinet', 'enrol_sync');
 	$filenameformatstr = get_string('filenameformatuc', 'enrol_sync');
 	echo "<br/><strong>$filecabinetstr</strong>: $CFG->dataroot/sync/reports<br/>";
 	echo "$filenameformatstr<br/><br/>";
 	echo '<ul>';
-	while (false !== ($file = readdir($handle))) {
-		if ($file != "." && $file != "..") {
-			echo "<li>$file</li>";
-		}
+	foreach($entries as $entry){
+		echo '<li> '.basename($entry).'</li>';
 	}
 	echo '</ul>';
-	closedir($handle);
-	
 	echo '<br/>';
 	
 	$loadstr = get_string('load', 'enrol_sync');

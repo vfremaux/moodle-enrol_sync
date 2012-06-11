@@ -196,10 +196,23 @@ class enrolment_plugin_sync {
 		$var = 'sync_'.$day;
 		
 		$last = 0 + @$CFG->sync_lastrun;
+
+		if ($last == 0) set_config('sync_dayrun', 0); // failtrap when never run and sync_lastrun not initialized
+
 		$now = time();
-		$nextrun = $last + DAYSECS - 300; // assume we do it once a day
+		// $nextrun = $last + DAYSECS - 300; // assume we do it once a day
+		
+		$nextdate = $last + DAYSECS;
+		$nextmidnight = mktime (0, 0, 0, date("n", $nextdate), date("j", $nextdate), date("Y", $nextdate));
+		
+		if (($now > $nextmidnight) && ($now > $last + $CFG->sync_ct)){
+			echo "Reset ... as after $nextmidnight. \n";
+			set_config('sync_dayrun', 0);
+		}
+
+		/*		
 		$done = 2;
-		if($now < $nextrun && !$debug){
+		if($now < $nextrun && !$debug && $last > 0){
 			if ($now > $last + $CFG->sync_ct){
 				// after the critical run time, we force back dayrun to false so cron can be run again.
 				// the critical time ensures that previous cron has finished and a proper "sync_lastrun" date has been recorded.
@@ -208,13 +221,14 @@ class enrolment_plugin_sync {
 			echo "Course and user sync ... nothing to do. Waiting time ".sprintf('%02d', $cfgh).':'.sprintf('%02d', $cfgm) ."\n";
 			return;
 		}
+		*/
 		
-		if (empty($CFG->$var)){
+		if (empty($CFG->$var) && !$debug){
 			echo "Course and user sync ... not valid day, nothing to do. \n";
 			return;
 		}
 		
-		if(($h == $cfgh) && ($m >= $cfgm) && !$CFG->sync_dayrun || ($debug > 1)){
+		if(($h == $cfgh) && ($m >= $cfgm) && !$CFG->sync_dayrun  || $debug){
 
 			// we store that lock at start to lock any bouncing cron calls.
 			set_config('sync_dayrun', 1);
@@ -301,8 +315,8 @@ class enrolment_plugin_sync {
 					echo $str;
 					$userpicturemanager = new users_plugin_manager;
 					$userpicturemanager->cron();
-					if (!empty($CFG->userslog)){
-						$log .= "$CFG->userslog\n";
+					if (!empty($CFG->userlog)){
+						$log .= "$CFG->userlog\n";
 					}
 					$str = get_string('endofprocess', 'enrol_sync');	
 					$str .= "\n\n";
@@ -376,7 +390,7 @@ class enrolment_plugin_sync {
 							$groupid = $g->id;
 							if(!groups_get_members($groupid, $fields='u.*', $sort='lastname ASC')){
 								groups_delete_group($groupid);
-							}								
+							}
 						}
 					}
 					$str = get_string('emptygroupsdeleted', 'enrol_sync');
@@ -406,7 +420,11 @@ class enrolment_plugin_sync {
 		        }
 			}
 		} else {
-			echo "Course and user sync ... already passed today, nothing to do. \n";
+			if (!$CFG->sync_dayrun){
+				echo "Course and user sync ... not yet. Waiting time ".sprintf('%02d', $cfgh).':'.sprintf('%02d', $cfgm) ."\n";
+			} else {
+				echo "Course and user sync ... already passed today, nothing to do. \n";
+			}
 		}
     } 
 } 
