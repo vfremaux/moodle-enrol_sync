@@ -1,0 +1,65 @@
+<fieldset>
+	<legend><strong><?php print_string('enrolsconfig', 'enrol_sync') ?></strong></legend>
+
+	<table cellspacing="0" cellpadding="5" border="0" class="boxaligncenter">
+
+	<tr valign="top">
+		<td align="right"><?php print_string('enrolfilelocation', 'enrol_sync') ?>:</td>
+		<td>
+			<input type="text" size="20" name="enrol_filelocation" value="<?php echo @$frm->enrol_filelocation ?>" />
+		</td>
+		<td align="right">
+			<?php  print_string('location', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('enrolcourseidentifier', 'enrol_sync') ?></td>
+		<td>
+		<?php
+		if (!isset($frm->enrol_courseidentifier)) set_config('enrol_courseidentifier', 0);
+		$identifieroptions = array('0' => 'idnumber', '1' => 'shortname', '2' => 'id');
+		echo html_writer::select($identifieroptions, 'enrol_courseidentifier', $frm->enrol_courseidentifier); 
+		?>
+		</td>
+		<td>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('enroluseridentifier', 'enrol_sync') ?></td>
+		<td>
+		<?php
+		if (!isset($frm->enrol_useridentifier)) set_config('enrol_useridentifier', 0);
+		$identifieroptions = array('0' => 'idnumber', '1' => 'username', '2' => 'email', '3' => 'id');
+		echo html_writer::select($identifieroptions, 'enrol_useridentifier', $frm->enrol_useridentifier); 
+		?>
+		</td>
+		<td>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('enrolemailcourseadmins', 'enrol_sync') ?>:</td>
+		<td>
+			<input type="checkbox" value="1" name="enrol_mailadmins" <?php if (@$frm->enrol_mailadmins) echo "checked=\"checked\"" ?> />
+		</td>
+		<td>
+			<?php  print_string('enrolemailcourseadmins_desc', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('enroldefaultcmd', 'enrol_sync') ?>:</td>
+		<td>
+			<select name="enrol_defaultcmd">
+				<option value="add" <?php if ((@$frm->enrol_defaultcmd) != 'del') echo "selected=\"selected\""; ?>>add</option>
+				<option value="del"<?php if ((@$frm->enrol_defaultcmd) == 'del') echo "selected=\"selected\""; ?>>del</option>
+			</input>
+		</td>
+		<td>
+			<?php print_string('enroldefaultcmd_desc', 'enrol_sync'); ?>
+		</td>
+	</tr>		
+	</table>
+</fieldset>

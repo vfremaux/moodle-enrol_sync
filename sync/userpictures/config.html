@@ -1,0 +1,53 @@
+<fieldset>
+	<legend><strong><?php print_string('userpicturesconfig', 'enrol_sync') ?></strong></legend>
+
+	<table cellspacing="0" cellpadding="5" border="0" class="boxaligncenter">
+
+	<tr valign="top">
+		<td align="right"><?php print_string('userpicturesfilesprefix', 'enrol_sync') ?>:</td>
+		<td>
+			<input type="text" size="20" name="userpictures_fileprefix" value="<?php echo @$frm->userpictures_fileprefix ?>" />
+		</td>
+		<td align="right">
+			<?php  print_string('userpicturesfilesprefix_desc', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('userpicturesuserfield', 'enrol_sync') ?>:</td>
+		<td>
+			<?php
+			echo html_writer::select($this->get_userfields(), 'userpictures_userfield', @$frm->userpictures_userfield);
+			?>
+		</td>
+		<td align="right">
+			<?php  print_string('userpicturesuserfield_desc', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('userpicturesoverwrite', 'enrol_sync') ?>:</td>
+		<td>
+			<?php
+			echo html_writer::select_yes_no('userpictures_overwrite', @$frm->userpictures_overwrite);
+			?>
+		</td>
+		<td align="right">
+			<?php  print_string('userpicturesoverwrite_desc', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<td align="right"><?php print_string('userpicturesforcedeletion', 'enrol_sync') ?>:</td>
+		<td>
+			<?php
+			echo html_writer::select_yes_no('userpictures_forcedeletion', @$frm->userpictures_forcedeletion);
+			?>
+		</td>
+		<td align="right">
+			<?php  print_string('userpicturesforcedeletion_desc', 'enrol_sync') ?>
+		</td>
+	</tr>
+
+	</table>
+</fieldset>
