@@ -20,10 +20,13 @@
 	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
+    }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
     }
 
-	$strcleancatname = get_string('cleancategories', 'enrol_sync');
+	$cleancatnamestr = get_string('cleancategories', 'enrol_sync');
 	
 	set_time_limit(300);
 
@@ -31,7 +34,7 @@
     $time_start = ((float)$usec + (float)$sec);
     
     $navlinks[] = array(
-    	'name' => $strcleancatname,
+    	'name' => $cleancatnamestr,
     	'url' => null,
     	'type' => 'title'
     );
@@ -94,12 +97,8 @@
         enrol_sync_report($CFG->deletereport, get_string('totaltime', 'enrol_sync').' '.round(($time_end - $time_start),2).' s');				
  	}
 
-	$returntotoolsstr = get_string('returntotools', 'enrol_sync');
 	// always return to main tool view.
-	echo '<center>';
-	echo "<br/>";
-	echo '<input type="button" value="'.$returntotoolsstr."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\">";
-	echo '<br/>';			 
-	echo '</center>';
+	sync_print_return_button();
+
 	print_footer();
 ?>

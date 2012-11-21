@@ -6,6 +6,7 @@
     require_once($CFG->libdir.'/adminlib.php');
 	require_once($CFG->libdir.'/moodlelib.php');
 	require_once($CFG->dirroot.'/course/lib.php');
+
 	require_login();
 	admin_externalpage_setup('sync');
 	
@@ -25,30 +26,27 @@
 	}
 	
 	if (!isadmin()) {
-        error('You must be an administrator to edit courses in this way.');
+        print_error('erroradminrequired', 'enrol_sync');
     }
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
     }
 	if (!$adminuser = get_admin()) {
-        error('Could not find site admin');
+        print_error('errornoadmin', 'enrol_sync');
     }
 
-	require_once($CFG->dirroot.'/enrol/sync/courses/courses.php');
+	require_once($CFG->dirroot.'/enrol/sync/courses/courses.class.php');
     $coursesmanager = new courses_plugin_manager;
-	
-	require_once($CFG->dirroot.'/enrol/sync/users/users.php');
+	require_once($CFG->dirroot.'/enrol/sync/users/users.class.php');
 	$usersmanager = new users_plugin_manager;
-	
-	require_once($CFG->dirroot.'/enrol/sync/userpictures/userpictures.php');
+	require_once($CFG->dirroot.'/enrol/sync/userpictures/userpictures.class.php');
 	$userpicturesmanager = new userpictures_plugin_manager;
-	
-	require_once($CFG->dirroot.'/enrol/sync/enrol/enrols.php');
+	require_once($CFG->dirroot.'/enrol/sync/enrol/enrols.class.php');
     $enrolmanager = new enrol_plugin_manager;
 	
 	require_once("$CFG->dirroot/enrol/sync/enrol.php");
 	$mainmanager = new enrolment_plugin_sync;
-		
+	
 	if (!isset($CFG->sync_encoding)) set_config('sync_encoding', 'UTF-8');
 	if (!isset($CFG->sync_csvseparator)) set_config('sync_csvseparator', ';');
 	if (!isset($CFG->userpictures_userfield)) set_config('userpictures_userfield', 1);
@@ -103,6 +101,7 @@
 	$manualhandlingstr = get_string('manualhandling', 'enrol_sync');
 	$utilitiesstr = get_string('utilities', 'enrol_sync');
 
+    echo "<p class=\"centerpara\"><input type=\"submit\" value=\" ". get_string('button', 'enrol_sync')."\" /></p>\n";
 	echo '<fieldset>';
 	echo "<legend><strong>$utilitiesstr</strong></legend>";
 	echo '<center>';
@@ -117,7 +116,7 @@
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/synccourses.php\">". get_string('manualuploadrun', 'enrol_sync') .'</a><br/>';
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/deletecourses.php\"> ". get_string('manualdeleterun', 'enrol_sync') . '</a><br/><br/>';
 	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/clearemptycategories.php\"> ". get_string('manualcleancategories', 'enrol_sync') . '</a><br/><br/>';
-	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/execron.php\"> ". get_string('executecoursecronmanually', 'enrol_sync') .'</a><br/>';
+	echo "<a href=\"$CFG->wwwroot/enrol/sync/courses/execcron.php\"> ". get_string('executecoursecronmanually', 'enrol_sync') .'</a><br/>';
 	echo '<br/>';
 	echo '</center></fieldset>';
 	//$coursesmanager->showFileDelete();
@@ -131,6 +130,7 @@
 	$manualusermgtstr = get_string('usermgtmanual', 'enrol_sync');
 	//$usersmanager->cron();
 	//$filechecker->transform_enrol_file($CFG->enrol_filelocation);
+    echo "<p class=\"centerpara\"><input type=\"submit\" value=\" ". get_string('button', 'enrol_sync')."\" /></p>\n";
 	echo "<fieldset><legend><strong>$manualusermgtstr</strong></legend>";	
 	echo "<center><br/> <a href=\"$CFG->wwwroot/enrol/sync/users/execcron.php\">". get_string('manualuserrun', 'enrol_sync') ." </a><br/></center>";
 	echo "<!-- center><br/> <a href=\"$CFG->wwwroot/admin/uploaduser.php\">". get_string('manualuserrun2', 'enrol_sync') ." </a><br/></center -->";	
@@ -143,6 +143,7 @@
 	print_heading_with_help(get_string('userpicturesync', 'enrol_sync'), 'uploadpictures', 'enrol_sync');
 	$userpicturesmanager->config_form($frm);
 	$manualuserpicturesmgtstr = get_string('userpicturesmgtmanual', 'enrol_sync');
+    echo "<p class=\"centerpara\"><input type=\"submit\" value=\" ". get_string('button', 'enrol_sync')."\" /></p>\n";
 	echo "<fieldset><legend><strong>$manualuserpicturesmgtstr</strong></legend>";	
 	echo "<center><br/> <a href=\"$CFG->wwwroot/enrol/sync/userpictures/execcron.php\">". get_string('manualuserpicturesrun', 'enrol_sync') ." </a><br/></center>";	
 	echo '<br />';
@@ -151,7 +152,7 @@
 	echo '<br />';
 	echo '<br />';
 
-	print_heading_with_help(get_string('enrolsync', 'enrol_sync'), 'syncenrol', 'enrol_sync');
+	print_heading_with_help(get_string('enrolsync', 'enrol_sync'), 'enrolsync', 'enrol_sync');
 	$enrolmanager->config_form($frm);
 	$manualenrolmgtstr = get_string('enrolmgtmanual', 'enrol_sync');
 	//$enrolmanager->cron();

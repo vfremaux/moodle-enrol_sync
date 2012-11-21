@@ -5,12 +5,16 @@
 	require_once($CFG->libdir.'/adminlib.php');
 	require_once($CFG->libdir.'/moodlelib.php');
 	require_once($CFG->dirroot.'/enrol/sync/lib.php');
-	require_once($CFG->dirroot.'/enrol/sync/courses/courses.php');
+	require_once($CFG->dirroot.'/enrol/sync/courses/courses.class.php');
 	
 	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
+
+    }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
     }
 
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
@@ -25,11 +29,8 @@
 	print_heading(get_string('checkingcourse', 'enrol_sync'));
 	
 	$returntotoolsstr = get_string('returntotools', 'enrol_sync');
-	
 	sync_print_remote_tool_portlet('importfile', $CFG->wwwroot.'/enrol/sync/courses/synccourses.php', 'createcourse', 'upload');
-	
 	sync_print_local_tool_portlet($CFG->course_fileuploadlocation, 'commandfile', 'synccourses.php');
-	
 	require_once($CFG->dirroot.'/lib/uploadlib.php');			 
 
 	// If there is a file to upload... do it... else do the rest of the stuff
@@ -48,7 +49,7 @@
 			$filename = $CFG->course_fileuploadlocation;
 			$filename = $CFG->dataroot.'/'.$filename;
 		}
-				
+		
 		// execron do everything a cron will do
 		echo($filename);
 		if (isset($filename) && file_exists($filename)){
@@ -72,7 +73,6 @@
 
 		$t = time();
 		$today = date("Y-m-d_H-i-s",$t);
-		
 		$filename = $CFG->dataroot."/sync/reports/CC_$today.txt";
 		
 		if($FILE = @fopen($filename,'w')){		
@@ -80,7 +80,7 @@
 		}
 		fclose($FILE);		
 	}
-		
+	
 	if ($del = optional_param('del', 0, PARAM_BOOL)){
 		$filename = optional_param('delname', '', PARAM_TEXT);
 		if($filename){
@@ -148,15 +148,11 @@
 		echo '</form>';			
 		echo '</center>';
 	}
-		
+	
 	echo '</fieldset>';
 
 	// always return to main tool view.
-	echo '<center>';
-	echo "<br/>";
-	echo '<input type="button" value="'.get_string('returntotools', 'enrol_sync')."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\">";
-	echo '<br/>';			 
-	echo '</center>';
+	sync_print_return_button();
 
 	print_footer();
 ?>

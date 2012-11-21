@@ -7,25 +7,13 @@ $string['alreadyassigned'] = 'L\'utilisateur $a->myuser est déjà assigné au r
 $string['archivecontrolfiles'] = 'Si activé, archive les fichiers de controle après exécution';
 $string['assign'] = 'Role \'$a->myrole\' assigné à $a->myuser dans le cours $a->mycourse';
 $string['backtoprevious'] = 'Retourner à la page précédente';
-$string['boxdescription'] =  'Outil de gestion des synchronisations de cours, d\'utilisateurs et de groupe à l\'aide de fichiers txt et csv appelés par le cron.<br/><br/>
-	Il suffit de préciser les répertoires des quatres fichiers :<br/>
-	<ol>
-		<li>Le fichier .txt pour la suppression de cours.
-		</li>
-		<li>Le fichier .csv pour l\'ajout de cours.
-		</li>
-		<li>Le fichier .csv pour l\'ajout ou la suppression d\'utilisateurs.
-		</li>
-		<li>Le fichier .csv pour l\'enrollement des apprenants et la gestion des groupes.
-		</li></il>
-		Il est egalement possible de déclencher ces scripts manuellement.';
 $string['builddeletefile'] = 'Générer un fichier de suppression';
 $string['button'] = 'Enregistrer la configuration des outils';
 $string['categoryremoved'] = 'Catégorie $a supprimée';
 $string['checkingcourse'] = 'Vérification d\'existence des cours';
 $string['choosecoursetodelete'] = 'Selection des cours à supprimer : ';
 $string['cleancategories'] = 'Nettoyage des catégories de cours vides';
-$string['commandfile'] = 'Fichier de commande (format pivot)';
+$string['commandfile'] = 'Fichier de commande ';
 $string['communicationerror'] = 'Erreur de communication avec le distant. Erreurs : $a';
 $string['configdefaultcmd'] = 'Configuration par défaut pour la colonne cmd';
 $string['confirm'] = 'Confirmer';
@@ -35,6 +23,7 @@ $string['coursecreated'] = 'Le cours [$a->shortname] $a->fullname a été créé
 $string['coursecronprocessing'] = 'Exécution de la synchronisation des cours';
 $string['coursedefaultsumary'] = 'Ecrire un résumé court et motivant expliquant le contenu et objectifs du cours';
 $string['coursedeleted'] = 'Cours $a supprimé.';
+$string['coursedeletefile'] = 'Fichier de suppression';
 $string['coursedeletion'] = 'Destruction de cours';
 $string['courseexists'] = 'Le cours [$a->shortname] $a->fullname existe déjà.';
 $string['coursefoundas'] = 'Le cours d\'idnumber $a->idnumber existe : <ol><li>fullname = $a->fullname </li><li> shortname = $a->shortname</li></ol>';
@@ -62,7 +51,7 @@ $string['day_wed'] = 'Mercredi';
 $string['deletecontrolfiles'] = 'Si activé, supprime les fichiers de controle après exécution';
 $string['deletecoursesconfirmquestion'] = 'Etes-vous sur de vouloir détruire ces cours<br />pour l\'éternité à venir et à la face du monde ? pour toujours ?';
 $string['deletefile'] = 'Fichier de suppression';
-$string['deletefilebuilder'] = 'Création de fichiers pivot pour la suppression de cours';
+$string['deletefilebuilder'] = 'Création de fichiers de commande pour la suppression de cours';
 $string['deletefileidentifier'] = 'Identifiant de cours pour suppression';
 $string['deletefileinstructions'] = 'Choisissez un fichier contenant la liste des noms cours des cours à supprimer (un nom par ligne).';
 $string['deletefromremote'] = 'Télécharger un fichier de suppression';
@@ -74,15 +63,23 @@ $string['emptygroupsdeleted'] = 'Groupes vides supprimés';
 $string['encoding'] = 'Encodage des fichiers source';
 $string['endofprocess'] = ' - Fin d\'exécution';
 $string['endofreport'] = 'Fin du rapport de traitement';
+$string['enrolcourseidentifier'] = 'Identifiant pour désigner les cours';
 $string['enrolcronprocessing'] = 'Traitement des inscriptions';
 $string['enroldefault'] = 'Traitement par défaut';
+$string['enroldefaultcmd'] = 'Configuration par défaut pour la colonne \"cmd\"';
+$string['enroldefaultcmd_desc'] = 'Définit la commande par défaut sur le rôle si la colonne \"cmd\" est absente';
 $string['enroldefaultinfo'] = 'Configuration par defaut pour la colonne cmd';
+$string['enrolemailcourseadmins'] = 'Notifier les admissions aux administrateurs du cours';
+$string['enrolemailcourseadmins_desc'] = 'Si activé, envoie un résumé des admissions aux enseignants du cours';
 $string['enrolfile'] = 'Fichier d\'enrôlement';
+$string['enrolfilelocation'] = 'Fichier d\'enrôlement';
+$string['enrolmanualsync'] = 'Exécution manuelle de la synchronisation d\'enrôlement';
 $string['enrolmgtmanual'] = 'Gestion manuelle de l\'enrôlement';
 $string['enrolname'] = 'Synchronisation des cours et utilisateurs';
 $string['enrolsconfig'] = 'Configuration des opérations sur les enrollements';
 $string['enrolscronconfig'] = 'Activer la synchronisation par cron des inscriptions';
 $string['enrolsync'] = 'Synchronisation des enrôlements';
+$string['enroluseridentifier'] = 'Identifiant pour désigner les ustilisateurs';
 $string['enterfilename'] = 'Entrez le nom du fichier rapport à visualiser :';
 $string['errorbadcmd'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : erreur de valeur dans la colonne cmd.';
 $string['errorbadcount'] = 'Erreur ligne $a->i : $a->count valeurs trouvées. $a->expected attendues.';
@@ -99,6 +96,7 @@ $string['erroremptyrole'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuse
 $string['errorgcmdvalue'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : la valeur de gcmd n\'existe pas';
 $string['errorgroupnotcreated'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : le groupe n\'a pas pu être créé.';
 $string['errorinvalidcolumnname'] = 'Erreur : nom de colonne \'$a\' invalide';
+$string['errorinvalidfieldname'] = 'Erreur : nom de champ \"$a\" invalide';
 $string['errorline'] = 'Erreur : Ligne ';
 $string['errornocourse'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : Le cours n\'existe pas';
 $string['errornocourses'] = 'Erreur : Aucun cours traité dans ce CSV';
@@ -113,11 +111,12 @@ $string['errorrestoringtemplate'] = 'Erreur ligne $a->i : Erreur de restauration
 $string['errorrestoringtemplatesql'] = 'Erreur ligne $a->i : Erreur SQL pour le gabarit $a->template. Le cours $a->coursename n\'a pas pu être créé.';
 $string['errorrpcparams'] = 'Erreur de paramètres RPC : $a';
 $string['errorsectioncreate'] = 'Erreur ligne $a->i : Erreur pendant la création des sections du cours $a->coursename';
+$string['errorsettingremoteaccess'] = 'Erreur de l\'ouverture de droits d\'accès réseau : $e ';
 $string['errorteacherenrolincourse'] = 'Erreur ligne $a->i : Impossible d\'enroler les enseignants du cours $a->coursename';
 $string['errorteacherrolemissing'] = 'Erreur ligne $a->i : Le rôle enseignant du cours  $a->coursename n\'a pas pu être déterminé';
 $string['errortemplatenotfound'] = 'Erreur ligne $a->i : Le gabarit de cours $a->template n\'a pas pu être trouvé ou n\'a pas d\'archives. Le cours $a->coursename n\'a pas pu être créé.';
+$string['errortemplatenotfound'] = 'Erreur ligne $a->i : Le gabarit de cours $a->template n\'a pas pu être trouvé ou n\'a pas d\'archives. Le cours $a->coursename n\'a pas pu être créé.';
 $string['errortoooldlock'] = 'Erreur : un ancien fichier locked.txt est présent';
-$string['errorsettingremoteaccess'] = 'Erreur de l\'ouverture de droits d\'accès réseau : $e ';
 $string['errorunassign'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : la désassignation du rôle $a->myrole à échoué.';
 $string['errorunassignall'] = 'Erreur ligne $a->i : $a->mycmd $a->myrole $a->myuser $a->mycourse : la désassignation générale des rôles à échoué.';
 $string['erroruploadpicturescannotunzip'] = 'Erreur : Impossible de dezipper le fichier d\'avatars : $a (le fichier est peut être vide)';
@@ -141,11 +140,12 @@ $string['errorvalidationvalueset'] = 'Erreur ligne $a->i : Valeur du champ $a->f
 $string['execstartsat'] = 'Exécution démarrée à $a ';
 $string['executecoursecronmanually'] = 'Exécuter toutes les opérations de cours ';
 $string['existcoursesfile'] = 'Fichier de test d\'existance';
+$string['existfileidentifier'] = 'Identifiant d\'existance ';
 $string['failedfile'] = 'Fichier de reprise';
 $string['filearchive'] = 'Archivage des fichiers de controle';
 $string['filecabinet'] = 'Répertoire des rapports';
 $string['filecleanup'] = 'Nettoyage des fichiers de controle';
-$string['filegenerator'] = 'Générateur de fichiers pivot';
+$string['filegenerator'] = 'Générateur de fichiers de commande';
 $string['filemanager'] = 'Gestion des fichiers de contrôle';
 $string['filemanager2'] = 'Gestionnaire de fichiers';
 $string['filenameformatcc'] = '<strong>Format du nom de rapport :</strong> CC_YYYY-MM-DD_hh-mm.txt';
@@ -155,12 +155,14 @@ $string['final_action'] = 'Post-traitements';
 $string['flatfilefoundforenrols'] = 'Fichier d\'enrôlements trouvé : ';
 $string['forcecourseupdateconfig'] = 'Si activé, les cours existants auront leurs attributs mise à jour. Le contenu et les données de cours restent inchangées.';
 $string['foundfile'] = 'Trouvé fichier : $a';
+$string['foundfilestoprocess'] = 'Trouvé $a fichiers à traiter';
 $string['generate'] = 'Générer';
 $string['getfile'] = 'Obtenir le fichier';
 $string['group_clean'] = 'Nettoyage des groupes';
 $string['group_cleanex'] = 'Effacer les groupes vides après exécution';
 $string['groupassigndeleted'] = 'Les assignations de groupe sont supprimées pour l\'utilisateur $a->myuser dans le cours $a->mycourse';
 $string['groupcreated'] = 'Le groupe $a->group a été créé dans le cours $a->mycourse';
+$string['groupunknown'] = 'Le groupe $a->group n\'existe pas dans $a->mycourse et la commande ne permet pas la création';
 $string['groupunknown'] = 'Le groupe $a->group n\'existe pas dans $a->mycourse et la commande ne permet pas la création';
 $string['hiddenroleadded'] = 'Rôle masqué ajouté dans le contexte : ';
 $string['hour'] = 'heure';
@@ -173,17 +175,17 @@ $string['makedeletefile'] = 'Créer un fichier de suppression de cours';
 $string['makefailedfile'] = 'Générer un fichier de reprise de défauts';
 $string['manualcleancategories'] = 'Nettoyer manuellement les catégories vides';
 $string['manualdeleterun'] = 'Exécuter manuellement une destruction de cours';
-$string['manualenrolrun'] = 'Exécuter manuellement ce script à partir du fichier pivot ';
+$string['manualenrolrun'] = 'Exécuter manuellement ce script à partir du fichier de commandes ';
 $string['manualhandling'] = 'Gestion manuelle des opérations';
 $string['manualuploadrun'] = 'Exécuter manuellement une creation de cours';
 $string['manualuserpicturesrun'] = 'Exécuter manuellement le rechargement d\'avatars';
-$string['manualuserrun'] = 'Exécuter manuellement ce script à partir du fichier pivot';
+$string['manualuserrun'] = 'Exécuter manuellement ce script à partir du fichier de commandes ';
 $string['manualuserrun2'] = 'Exécuter manuellement ce script à partir d\'un fichier distant';
 $string['minute'] = 'minute';
 $string['ncategoriesdeleted'] = '$a catégories supprimées';
 $string['noeventstoprocess'] = 'Pas d\'événements à la ligne $a';
 $string['nofile'] = 'Aucun fichier disponible'; 
-$string['nofileconfigured'] = 'Pas de fichier mémorisé';
+$string['nofileconfigured'] = 'Pas de fichier de données configuré pour cette opération';
 $string['nofiletoprocess'] = 'Pas de fichier à traiter';
 $string['nogradestoprocess'] = 'Pas de notes à la ligne $a';
 $string['nogrouptoprocess'] = 'Pas de groupes'; 
@@ -195,6 +197,8 @@ $string['parsingfile'] = 'Examen du fichier...';
 $string['predeletewarning'] = '<b><font color=\"red\">ATTENTION :</font></b> La suppression des cours suivant va être effectuée :';
 $string['process'] = 'Effectuer l\'opération';
 $string['processingfile'] = 'Examen du fichier : $a';
+$string['processingfile'] = 'Exécution en cours...';
+$string['processresult'] = 'Résultat d\'exécution';
 $string['purge'] = 'Purger tous les rapports';
 $string['reinitialisation'] = 'Réinitialiser des cours';
 $string['remoteenrolled'] = 'Utilisateur $a->username inscrit en tant que $a->rolename sur $a->wwwroot dans le cours $a->coursename';
@@ -213,7 +217,10 @@ $string['shortnametodelete'] = 'Cours à supprimer';
 $string['skippedline'] = 'Ligne ($a) ignorée (erreur de format colonne)';
 $string['startingcheck'] = 'Démarrage du test';
 $string['storedfile'] = 'Fichier de commande mémorisé : $a';
+$string['sync:configure'] = 'Configurer les synchronisations';
+$string['syncconfig'] = 'Configuration de la synchronisation';
 $string['synccourses'] = 'Gestionnaire de cours';
+$string['syncenrol'] = 'Mise à jour des rôles et inscriptions';
 $string['syncenrols'] = 'Gestionnaire d\'inscription';
 $string['syncforcecourseupdate'] = 'Forcer la mise à jour des cours';
 $string['synchronization'] = 'Synchronisation de données';
@@ -231,21 +238,49 @@ $string['uploadfile'] = 'Fichier d\'import';
 $string['useraccountadded'] = 'Utilisateur ajouté : $a ';
 $string['useraccountupdated'] = 'Utilisateur modifié : $a ';
 $string['usercreatedremotely'] = 'Utilisateur $a->username créé sur $a->wwwroot ';
+$string['useraccountadded'] = 'Utilisateur ajouté : $a ';
+$string['useraccountupdated'] = 'Utilisateur modifié : $a ';
+$string['usercreatedremotely'] = 'Utilisateur $a->username créé sur $a->wwwroot ';
 $string['usercronprocessing'] = 'Synchronisation automatique de utilisateurs';
 $string['userexistsremotely'] = 'L\'utilisateur $a existe déjà sur le distant';
 $string['usermgtmanual'] = 'Gestion manuelle des utilisateurs';
+$string['usernotaddederror'] = 'Erreur de création de compte : $a';
+$string['usernotrenamedexists'] = 'Erreur sur renommage de compte (cible existe) : $a';
+$string['usernotrenamedmissing'] = 'Erreur sur renommage de compte (compte source manquant) : $a';
+$string['usernotupdatederror'] = 'Erreur de modification de compte : $a';
 $string['userpicturemgt'] = 'Gestion des avatars d\'utilisateurs';
 $string['userpicturesconfig'] = 'Configuration des opérations sur les avatars d\'utilisateurs';
 $string['userpicturescronconfig'] = 'Activer le traitement de l\'import d\'avatars';
 $string['userpicturescronprocessing'] = 'Traitement automatique des avatars d\'utilisateurs';
-$string['userpicturesfileprefix'] = 'Préfixe des fichiers d\'avatars';
-$string['userpicturesforcedeletion'] = 'Forcer la suppression des fichiers sources (même si l\'option globale de suppression est inactivve)';
+$string['userpicturesfilesprefix'] = 'Préfixe des fichiers d\'avatars ';
+$string['userpicturesforcedeletion'] = 'Forcer la suppression des fichiers sources (même si l\'option globale de suppression est inactive) ';
+$string['userpicturesforcedeletion_desc'] = 'Supprime les archives sources même si l\'option globale de suppression des fichiers de commande est inactive';
+$string['userpicturesmanualsync'] = 'Mise à jour manuelle des avatars';
 $string['userpicturesmgtmanual'] = 'Gestion manuelle des avatars';
-$string['userpicturesoverwrite'] = 'Si activé, remplace les avatars avec les nouvelles versions';
-$string['userpicturesuserfield'] = 'Champ de reconnaissance des utilisateur';
+$string['userpicturesoverwrite'] = 'Si activé, remplace les avatars avec les nouvelles versions ';
+$string['userpicturesuserfield'] = 'Champ de reconnaissance des utilisateurs ';
+$string['userpicturesfilesprefix_desc'] = 'Tous les fichiers présents correspondant au préfixe seront traités dans l\'ordre lexicographique.';
+$string['userpicturesforcedeletion_desc'] = 'Supprime les archives sources même si l\'option globale de suppression des fichiers de commande est inactive';
+$string['userpicturesoverwrite_desc'] = 'Si activé, remplace les avatars avec les nouvelles versions';
+$string['userpicturesuserfield_desc'] = 'La valeur de ce champ doit correspondre au nom des fichiers image (avant extension).';
 $string['userpicturesync'] = 'Synchronisation des avatars d\'utilisateurs';
+$string['userrevived'] = 'Utilisateur supprimé réanimé : $a';
 $string['usersconfig'] = 'Configuration des opérations sur les utilisateurs';
 $string['userscronconfig'] = 'Activer la synchronisation par cron des utilisateurs';
+$string['usersupdated'] = 'Utilisateurs mis à jour ';
 $string['usersync'] = 'Synchronisation des utilisateurs';
 $string['userunknownremotely'] = 'L\'utilisateur $a n\'existe pas sur le distant';
 $string['utilities'] = 'Utilitaires';
+
+$string['boxdescription'] =  'Outil de gestion des synchronisations de cours, d\'utilisateurs et de groupe à l\'aide de fichiers txt et csv appelés par le cron.<br/><br/>
+	Il suffit de préciser les répertoires des quatres fichiers :<br/>
+	<ol>
+		<li>Le fichier .txt pour la suppression de cours.
+		</li>
+		<li>Le fichier .csv pour l\'ajout de cours.
+		</li>
+		<li>Le fichier .csv pour l\'ajout ou la suppression d\'utilisateurs.
+		</li>
+		<li>Le fichier .csv pour l\'enrollement des apprenants et la gestion des groupes.
+		</li></il>
+		Il est egalement possible de déclencher ces scripts manuellement.';

@@ -12,10 +12,11 @@
 	admin_externalpage_setup('sync');
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+		print_error('errornosite', 'enrol_sync');
+
     }
 	
-	require_once("$CFG->dirroot/enrol/sync/userpictures/userpictures.php");
+	require_once("$CFG->dirroot/enrol/sync/userpictures/userpictures.class.php");
     $picturemanager = new userpictures_plugin_manager;
 	
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
@@ -35,18 +36,14 @@
 	echo "</pre>";
 
 	$userpicturesmgtmanualstr = get_string('userpicturesmgtmanual', 'enrol_sync');
-	$backtoprevious = get_string('backtoprevious', 'enrol_sync');
 	$cronrunmsg = get_string('cronrunmsg', 'enrol_sync', '');
 
 	echo "<br/><fieldset><legend><strong>$userpicturesmgtmanualstr</strong></legend>";
 	echo "<center>$cronrunmsg</center>";
 	echo '</fieldset>';
-	echo '<center>';
 	echo '<hr/>';
-	echo '<br/>';
-	echo '<input type="button" value="'.get_string('returntotools', 'enrol_sync')."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\">";
-	echo '<br/>';			 
-	echo '</center>';
+
+	sync_print_return_button();
 
 	print_footer();
 

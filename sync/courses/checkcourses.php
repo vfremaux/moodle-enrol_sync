@@ -5,12 +5,15 @@
 	require_once($CFG->libdir.'/adminlib.php');
 	require_once($CFG->libdir.'/moodlelib.php');
 	require_once($CFG->dirroot.'/enrol/sync/lib.php');
-	require_once($CFG->dirroot.'/enrol/sync/courses/courses.php');
+	require_once($CFG->dirroot.'/enrol/sync/courses/courses.class.php');
 	
 	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
+    }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
     }
 
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
@@ -41,10 +44,10 @@
 
 		$uselocal = optional_param('uselocal', false, PARAM_BOOL);
 		if(!empty($uselocal)){
-			$filename = $CFG->file_course_exist;
+			$filename = $CFG->course_fileexistlocation;
 			$filename = $CFG->dataroot.'/'.$filename;
 		}
-				
+		
 		// execron do everything a cron will do
 		if (isset($filename) && file_exists($filename)){
 			$filestouse->check = $filename;
@@ -147,9 +150,7 @@
 	echo '</fieldset>';
 
 	// always return to main tool view.
-	echo '<center>';
-	echo '<p><input type="button" value="'.get_string('returntotools', 'enrol_sync')."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\"></p>";
-	echo '</center>';
+	sync_print_return_button();
 
 	print_footer();
 ?>

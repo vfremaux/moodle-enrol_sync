@@ -12,16 +12,15 @@
 	require_once $CFG->dirroot.'/enrol/sync/courses/lib.php';
 	require_once $CFG->dirroot.'/enrol/sync/lib.php';
 
-	require_login();
+// security
+		
+	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
 	
-	if (!isadmin()) {
-        error('You must be an administrator to edit courses in this way.');
-    }
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
     }
 	if (!$adminuser = get_admin()) {
-        error('Could not find site admin');
+        print_error('errornoadmin', 'enrol_sync');
     }
 
 	require_js($CFG->wwwroot.'/enrol/sync/courses/js.js');
@@ -65,6 +64,7 @@
 	<?php
 	$courses = sync_get_all_courses();	
 	$class = 'r0' ;
+	$distinctcourses = array();
 	foreach ($courses as $c){
 		$class = ($class == 'r0') ? 'r1' : 'r0' ;
 		if (@$prevc->shortname != $c->shortname){
@@ -74,6 +74,7 @@
 		} else {
 			echo "<td>$c->rolename : $c->people</td>";
 		}
+		$distinctcourses[$c->shortname] = $c;
 		$prevc = $c;
 	}
 	?>
@@ -94,8 +95,13 @@
 		<td align="center">
 			<select style="height:200px" name="courselist" multiple OnDblClick="javascript:selectcourses(this.form.courselist,this.form.selection)" >
 				<?php 
-				foreach ($courses as $course){
-					echo '<option value="'.$course->shortname.'">'.$course->fullname.'</option>';
+				foreach ($distinctcourses as $c){
+					switch (0 + @$CFG->course_filedeleteidentifier){
+						case 0 : $cid = $c->idnumber; break;
+						case 1 : $cid = $c->shortname; break;
+						case 2 : $cid = $c->id; break;
+					}
+					echo '<option value="'.$cid.'">('.$c->idnumber.') '.$c->shortname.' - '.$c->fullname.'</option>';
 				}
 				?>
 			</select>
@@ -120,11 +126,12 @@
 	</tr>
 </table>
 <p><input type="submit" value="<?php print_string('generate', 'enrol_sync') ?>"/></p>
-<hr/>
-<input type="button" value="<?php print_string('returntotools', 'enrol_sync') ?>" onclick="document.location.href='<?php echo $CFG->wwwroot; ?>/enrol/sync/sync.php?sesskey=<?php echo $USER->sesskey ?>'" />
 </center>
 </form>
 
 <?php
+
+sync_print_return_button();
+
 print_footer();
 ?>

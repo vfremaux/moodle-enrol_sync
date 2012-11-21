@@ -5,6 +5,10 @@ define('SYNC_COURSE_CREATE', 0x002);
 define('SYNC_COURSE_DELETE', 0x004);
 define('SYNC_COURSE_CREATE_DELETE', 0x006);
 
+/**
+* prints a report to a log stream and output ir also to screen if required
+*
+*/
 function enrol_sync_report(&$report, $message){
 
 	if (empty($report)) $report = '';
@@ -12,6 +16,10 @@ function enrol_sync_report(&$report, $message){
 	$report .= $message."\n";
 }
 
+/**
+* Check a CSV input line format for empty or commented lines
+* Ensures compatbility to UTF-8 BOM or unBOM formats
+*/
 function sync_is_empty_line_or_format(&$text, $resetfirst = false){
 	global $CFG;
 	
@@ -35,6 +43,10 @@ function sync_is_empty_line_or_format(&$text, $resetfirst = false){
 	return preg_match('/^$/', $text) || preg_match('/^(\(|\[|-|#|\/| )/', $text);
 }
 
+/**
+* prints a remote file upload for processing form
+*
+*/
 function sync_print_remote_tool_portlet($titlekey, $targeturl, $filefieldname, $submitlabel, $return = false){
 	global $CFG, $USER;
 	
@@ -56,6 +68,10 @@ function sync_print_remote_tool_portlet($titlekey, $targeturl, $filefieldname, $
 	echo $str;
 }
 
+/**
+* prints the form for using the registered commande file (locally on server)
+*
+*/
 function sync_print_local_tool_portlet($config, $titlekey, $targeturl, $return = false){
 	global $USER, $CFG;
 	
@@ -88,12 +104,31 @@ function sync_print_local_tool_portlet($config, $titlekey, $targeturl, $return =
 	echo $str;
 }
 
+function sync_print_return_button(){
+	global $CFG, $OUTPUT;
+	
+	echo '<center>';
+	echo '<hr/>';
+	echo '<br/>';
+	$url = $CFG->wwwroot.'/enrol/sync/sync.php';
+	$options['sesskey'] = sesskey();
+	$text = get_string('returntotools', 'enrol_sync');
+	print_single_button($url, $options, $text);
+	echo '<br/>';			 
+	echo '</center>';
+}
+
+/**
+* Get course and role assignations summary
+* TODO : Rework for PostGre compatibility.
+*/
 function sync_get_all_courses(){
 	global $CFG;
 	
 	$sql = "
 		SELECT
 			IF(ass.roleid IS NOT NULL , CONCAT( c.id, '_', ass.roleid ) , CONCAT( c.id, '_', '0' ) ) AS recid, 
+			c.id,
 			c.shortname, 
 			c.fullname, 
 			count( DISTINCT ass.userid ) AS people, 
@@ -126,6 +161,12 @@ function sync_get_all_courses(){
 	return $results;
 }
 
+/**
+* Create and feeds tryback file with failed records from an origin command file
+* @param string $originfilename the origin command fiale name the tryback name will be guessed from
+* @param string $line the initial command line that has failed (and should be replayed after failure conditions have been fixed)
+* @param mixed $header the header fields to be reproduced in the tryback file as a string, or an array of string.
+*/
 function sync_feed_tryback_file($originfilename, $line, $header = ''){
 	global $CFG;
 	

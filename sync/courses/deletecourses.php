@@ -28,7 +28,10 @@
 	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
+    }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
     }
 
 	$strenrolname = get_string('enrolname', 'enrol_sync');
@@ -51,6 +54,7 @@
 
 // Page controller
 
+	$identifiers = array();
 	if(!isset($_POST['ids'])) {
 
 		// Start page... display instructions and upload buttons etc...
@@ -81,7 +85,7 @@
 	
 			$uselocal = optional_param('uselocal', false, PARAM_BOOL);
 			if(!empty($uselocal)){
-				$filename = $CFG->file_course_exist;
+				$filename = $CFG->course_filedeletelocation;
 				$filename = $CFG->dataroot.'/'.$filename;
 			}
 		}
@@ -103,8 +107,7 @@
 				}
 				fclose($file);
 			}
-			
-			
+						
 			// Ok now we have the file in a proper format... lets parse it for course
 			//    shortnames and show the list of courses with id #s followed by a confirm button
 			
@@ -211,12 +214,9 @@
 		}
  	}
 
-	$returntotoolsstr = get_string('returntotools', 'enrol_sync');
 	// always return to main tool view.
-	echo '<center>';
-	echo "<br/>";
-	echo '<input type="button" value="'.$returntotoolsstr."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\">";
-	echo '<br/>';			 
-	echo '</center>';
+	sync_print_return_button();
+
+
 	print_footer();
 ?>

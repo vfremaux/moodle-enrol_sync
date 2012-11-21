@@ -4,6 +4,7 @@
 // $CFG->users_filelocation:       where is the file we are looking for?
 // author - Funck Thibaut
 require_once $CFG->dirroot.'/enrol/sync/lib.php';
+require_once($CFG->dirroot.'/user/profile/lib.php');
 
 class users_plugin_manager {
 
@@ -61,9 +62,11 @@ class users_plugin_manager {
     function cron() {
         global $CFG, $USER;
 
-		$createpassword = 'no';
-		$updateaccounts = 'yes';
-		$allowrenames   = 'no';			
+		// Internal process controls
+		$createpassword = false;
+		$updateaccounts = true;
+		$allowrenames   = false;
+		$keepexistingemailsafe = true;	
 		
 		if (!$adminuser = get_admin()) {
 			error("Could not find site admin");
@@ -152,6 +155,8 @@ class users_plugin_manager {
 				'start',
 				'end',
 				'wwwroot');
+			$metas = array(
+				'profile_field_.*' );
 
 		// --- get header (field names) ---
 
@@ -176,7 +181,8 @@ class users_plugin_manager {
 			$header[] = trim($h); 
 		
 			$patternized = implode('|', $patterns) . "\\d+";
-			if (!(isset($required[$h]) or isset($optionalDefaults[$h]) or isset($optional[$h]) or preg_match("/$patternized/", $h))) {
+			$metapattern = implode('|', $metas);
+			if (!(isset($required[$h]) or isset($optionalDefaults[$h]) or isset($optional[$h]) or preg_match("/$patternized/", $h) or preg_match("/$metapattern/", $h))) {
 				enrol_sync_report($CFG->userlog, get_string('invalidfieldname', 'error', $h));
 				return;
 			}
@@ -275,7 +281,7 @@ class users_plugin_manager {
 					$coursetoadd->role = isset($user->$roleix) ? $user->$roleix : NULL;
 					$coursetoadd->start = isset($user->$startix) ? $user->$startix : 0;
 					$coursetoadd->end = isset($user->$endix) ? $user->$endix : 0;
-					$coursetoadd->wwwroot = isset($user->$wwwrootix) ? $user->$wwwrootix : '';
+					$coursetoadd->wwwroot = isset($user->$wwwrootix) ? $user->$wwwrootix : 0;
 					$addcourses[] = $coursetoadd;
 					$ci++;
 					$courseix = 'course'.$ci;
@@ -308,11 +314,24 @@ class users_plugin_manager {
 				}
 
 				if (empty($user->mnethostid)) $user->mnethostid = $CFG->mnet_localhost_id;
+				if (empty($CFG->primaryidentity)) $CFG->primaryidentity = 'idnumber';
 				$idnumber = @$user->idnumber;
-				if ($olduser = get_record('user', 'username', $username, 'mnethostid', $user->mnethostid)) {
+				if ($CFG->primaryidentity && !empty($idnumber)){
+					$olduser = get_record('user', 'idnumber', $idnumber, 'mnethostid', $user->mnethostid);
+				} else {
+					$olduser = get_record('user', 'username', $username, 'mnethostid', $user->mnethostid);
+				}
+				if ($olduser) {
 					if ($updateaccounts) {
 						// Record is being updated
 						$user->id = $olduser->id;
+						if ($olduser->deleted){
+							enrol_sync_report($CFG->userlog, get_string('userrevived', 'enrol_sync', "$user->username ($idnumber)"));
+							$user->deleted = 0; // revive old deleted users if they already exist
+						}
+						if ($keepexistingemailsafe){
+							unset($user->email);
+						}
 						if (update_record('user', $user)) {
 							enrol_sync_report($CFG->userlog, get_string('useraccountupdated', 'enrol_sync', "$user->username ($idnumber)"));
 							$usersupdated++;
@@ -321,6 +340,9 @@ class users_plugin_manager {
 							$userserrors++;
 							continue;
 						}
+
+		                // save custom profile fields data from csv file
+		                profile_save_data(addslashes_recursive($user));
 					} else {
 						//Record not added - user is already registered
 						//In this case, output userid from previous registration
@@ -342,6 +364,9 @@ class users_plugin_manager {
 							//            name   => 'auth_forcepasswordchange',
 							//            value  => 1));
 						}
+
+		                // save custom profile fields data from csv file
+		                profile_save_data(addslashes_recursive($user));
 					} else {
 						// Record not added -- possibly some other error
 						enrol_sync_report($CFG->userlog, get_string('usernotaddederror', 'error', "$username ($idnumber)"));
@@ -494,8 +519,12 @@ class users_plugin_manager {
 			                		// in case this block is installed, mark access authorisations in the user's profile
 			                		if (file_exists($CFG->dirroot.'/blocks/user_mnet_hosts/xlib.php')){
 			                			include_once($CFG->dirroot.'/blocks/user_mnet_hosts/xlib.php');
-			                			if ($error = user_mnet_host_add_access($user, $c->wwwroot)){
-		                					enrol_sync_report($CFG->userlog, get_string('errorsettingremoteaccess', 'enrol_sync', $error));
+			                			if ($result = user_mnet_host_add_access($user, $c->wwwroot)){
+			                				if (preg_match('/error/', $result)){
+			                					enrol_sync_report($CFG->userlog, get_string('errorsettingremoteaccess', 'enrol_sync', $result));
+			                				} else {
+			                					enrol_sync_report($CFG->userlog, $result);
+			                				}
 			                			}
 			                		}
 			                		

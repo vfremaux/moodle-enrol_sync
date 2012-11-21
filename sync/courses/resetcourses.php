@@ -17,9 +17,12 @@
 	if (! $site = get_site()) {
         error('Could not find site-level course');
     }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
+    }
 
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
-			  'link' => $CFG->wwwroot.'/admin/sync.php',
+			  'link' => $CFG->wwwroot.'/enrol/sync/sync.php',
 			  'type' => 'url');
 	$navlinks[] = array('name' => get_string('coursereset', 'enrol_sync'),
 			  'url' => null,
@@ -234,7 +237,7 @@
 						}
 						$modlist[$modname] = 1;
 							
-						$modfile = $CFG->dirroot.'/mod/$modname/lib.php';
+						$modfile = $CFG->dirroot."/mod/$modname/lib.php";
 						$mod_reset_course_form_definition = $modname.'_reset_course_form_defaults';
 						$mod_reset_userdata = $modname.'_reset_userdata';
 						if (file_exists($modfile)) {

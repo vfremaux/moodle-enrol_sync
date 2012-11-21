@@ -6,11 +6,11 @@
 * @author Funck Thibaut
 */
 
-require_once($CFG->dirroot.'/enrol/sync/courses/courses.php');
-require_once($CFG->dirroot.'/enrol/sync/users/users.php');
-require_once($CFG->dirroot.'/enrol/sync/enrol/enrols.php');
-require_once($CFG->dirroot.'/enrol/sync/userpictures/userpictures.php');
-		
+require_once($CFG->dirroot.'/enrol/sync/courses/courses.class.php');
+require_once($CFG->dirroot.'/enrol/sync/users/users.class.php');
+require_once($CFG->dirroot.'/enrol/sync/enrol/enrols.class.php');
+require_once($CFG->dirroot.'/enrol/sync/userpictures/userpictures.class.php');
+
 class enrolment_plugin_sync {
 
 	/// Override the base config_form() function
@@ -46,7 +46,7 @@ class enrolment_plugin_sync {
 		}
 		
 		set_config('sync_coursescleanup', $config->sync_coursescleanup);
-				
+		
 		if (!isset($config->sync_userscleanup)) {
 			$config->sync_userscleanup = '';
 		}
@@ -142,7 +142,7 @@ class enrolment_plugin_sync {
 		}
 		
 		set_config('sync_ct', $config->sync_ct);				
-	
+		
 		if (!isset($config->sync_filecleanup)) {
 			$config->sync_filecleanup = '';
 		}
@@ -185,7 +185,7 @@ class enrolment_plugin_sync {
 		// 0 no debug
 		// 1 pass hourtime
 		// 2 pass dayrun and daytime
-	
+		
 		$cfgh = $CFG->sync_h;
 		$cfgm = $CFG->sync_m;
 		
@@ -235,10 +235,10 @@ class enrolment_plugin_sync {
 		
 			print_string('execstartsat', 'enrol_sync', "$h:$m");
 			echo "\n";
-							
+			
 			$lockfile = "$CFG->dataroot/sync/locked.txt";
 			$alock = "$CFG->dataroot/sync/alock.txt";
-				
+			
 			if((file_exists($alock))||(file_exists($lockfile))){
 				$log = "Synchronisation report\n \n";
 				$log = $log . "Starting at: $h:$m \n";
@@ -249,11 +249,11 @@ class enrolment_plugin_sync {
 					$line = fgets($file);
 					fclose($file);
 					$i = time();
-						
+					
 					$field = explode(':', $line);
-						
+					
 					$last = $field[1] + 60 * $ct;
-						
+					
 					if($now > $last){
 						$str = get_string('errortoooldlock', 'enrol_sync');
 						$log .= $str;
@@ -272,7 +272,7 @@ class enrolment_plugin_sync {
 				$log .= "- - - - - - - - - - - - - - - - - - - -\n \n";
 				
 				/// COURSE SYNC
-					
+				
 				if (empty($CFG->sync_courseactivation)) {
 					$str = get_string('coursesync', 'enrol_sync');
 					$str .= ': ';
@@ -300,7 +300,7 @@ class enrolment_plugin_sync {
 				}
 
 				/// USER ACCOUNTS SYNC
-					
+				
 				if (empty($CFG->sync_useractivation)) {
 					$str = get_string('usersync', 'enrol_sync');
 					$str .= ': ';
@@ -350,7 +350,7 @@ class enrolment_plugin_sync {
 				}
 
 				/// ENROLLMENT SYNC
-					
+				
 				if (empty($CFG->sync_enrolactivation)) {
 					$str = get_string('enrolcronprocessing', 'enrol_sync');
 					$str .= ': ';
@@ -375,7 +375,7 @@ class enrolment_plugin_sync {
 				}		
 
 				/// GROUP CLEANUP
-					
+				
 				if (empty($CFG->sync_enrolcleanup)) {
 					$str = get_string('group_clean', 'enrol_sync');
 					$str .= ': ';

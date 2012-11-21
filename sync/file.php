@@ -1,4 +1,4 @@
-<?php // $Id: file.php,v 1.11 2011-12-17 12:13:48 vf Exp $
+<?php // $Id: file.php,v 1.13 2012-11-14 12:06:43 vf Exp $
 
 /**
 * A derivate of the standard file.php. 
@@ -16,22 +16,24 @@
     ob_start();
 
    	// $id      = required_param('id', PARAM_INT);
-    $file    = optional_param('file', '', PARAM_PATH);
-    $wdir    = optional_param('wdir', '', PARAM_PATH);
-    $action  = optional_param('action', '', PARAM_ACTION);
-    $name    = optional_param('name', '', PARAM_FILE);
-    $oldname = optional_param('oldname', '', PARAM_FILE);
-    $choose  = optional_param('choose', '', PARAM_FILE); //in fact it is always 'formname.inputname'
-    $userfile= optional_param('userfile','',PARAM_FILE);
-    $save    = optional_param('save', 0, PARAM_BOOL);
-    $text    = optional_param('text', '', PARAM_RAW);
-    $confirm = optional_param('confirm', 0, PARAM_BOOL);
+    $file     = optional_param('file', '', PARAM_PATH);
+    $wdir     = optional_param('wdir', '', PARAM_PATH);
+    $action   = optional_param('action', '', PARAM_ACTION);
+    $name     = optional_param('name', '', PARAM_FILE);
+    $oldname  = optional_param('oldname', '', PARAM_FILE);
+    $choose   = optional_param('choose', '', PARAM_FILE); //in fact it is always 'formname.inputname'
+    $userfile = optional_param('userfile','',PARAM_FILE);
+    $save     = optional_param('save', 0, PARAM_BOOL);
+    $text     = optional_param('text', '', PARAM_RAW);
+    $confirm  = optional_param('confirm', 0, PARAM_BOOL);
 
     if ($choose) {
         if (count(explode('.', $choose)) > 2) {
-            error('Incorrect format for choose parameter');
+            print_error('errorbadchooseformat', 'enrol_sync');
         }
     }
+    
+    require_login();
 
 	// Security : only master admins can do anything here
   	require_capability('moodle/site:doanything', get_context_instance(CONTEXT_SYSTEM));
@@ -89,7 +91,7 @@
             </script>
 
             <?php
-            } elseif (count($chooseparts)==1){
+            } elseif (count($chooseparts) == 1){
             ?>
             <script type="text/javascript">
             //<![CDATA[
@@ -105,6 +107,7 @@
             }
             $fullnav = '';
             $i = 0;
+            // TODO : Check here
             foreach ($navlinks as $navlink) {
                 // If this is the last link do not link
                 if ($i == count($navlinks) - 1) {
@@ -156,7 +159,7 @@
 	}
 	
     if (! $basedir = make_upload_directory('sync')) {
-        error("The site administrator needs to fix the file permissions");
+        print_error('errorsitepermissions', 'enrol_sync');
     }
 
     $baseweb = $CFG->wwwroot;
@@ -174,7 +177,7 @@
 
     if (!is_dir($basedir.$wdir)) {
         html_header($wdir);
-        error("Requested directory does not exist.", "$CFG->wwwroot/enrol/sync/file.php?wdir=");
+        print_error('errordirectory', 'enrol_sync', '', "$CFG->wwwroot/enrol/sync/file.php?wdir=");
     }
 
 	// show a file if a file is reqested
@@ -219,7 +222,7 @@
 	
     switch ($action) {
 
-        case "upload":
+        case 'upload':
             html_header($wdir);
             require_once($CFG->dirroot.'/lib/uploadlib.php');
 
@@ -350,14 +353,14 @@
                 html_header($wdir, "form.name");
                 echo "<p>$strrenamefileto:</p>";
                 echo "<table><tr><td>";
-                echo "<form action=\"file.php\" method=\"post\">";
+                echo "<form name=\"renameform\" action=\"file.php\" method=\"post\">";
                 echo "<fieldset class=\"invisiblefieldset\">";
                 echo ' <input type="hidden" name="choose" value="'.$choose.'" />';
                 echo " <input type=\"hidden\" name=\"wdir\" value=\"$wdir\" />";
                 echo " <input type=\"hidden\" name=\"action\" value=\"rename\" />";
                 echo " <input type=\"hidden\" name=\"oldname\" value=\"$file\" />";
                 echo " <input type=\"hidden\" name=\"sesskey\" value=\"$USER->sesskey\" />";
-                echo " <input type=\"text\" name=\"name\" size=\"35\" value=\"$file\" />";
+                echo " <input type=\"text\" id=\"renamename\" name=\"name\" size=\"35\" value=\"$file\" />";
                 echo " <input type=\"submit\" value=\"$strrename\" />";
                 echo "</fieldset>";
                 echo "</form>";
@@ -791,15 +794,15 @@ function displaydir ($wdir) {
                 if ($wdir.$dir === '/moddata') {
                     print_cell();
                 } else {
-                    print_cell("center", "<input type=\"checkbox\" name=\"file$count\" value=\"$fileurl\" />", 'checkbox');
+                    print_cell('center', "<input type=\"checkbox\" name=\"file$count\" value=\"$fileurl\" />", 'checkbox');
                 }
-                print_cell("left", "<a href=\"{$CFG->wwwroot}/enrol/sync/file.php?id=$id&amp;wdir=$fileurl&amp;choose=$choose\"><img src=\"$CFG->pixpath/f/folder.gif\" class=\"icon\" alt=\"$strfolder\" />&nbsp;".htmlspecialchars($dir)."</a>", 'name');
-                print_cell("right", $filesize, 'size');
-                print_cell("right", $filedate, 'date');
+                print_cell('left', "<a href=\"{$CFG->wwwroot}/enrol/sync/file.php?id=$id&amp;wdir=$fileurl&amp;choose=$choose\"><img src=\"$CFG->pixpath/f/folder.gif\" class=\"icon\" alt=\"$strfolder\" />&nbsp;".htmlspecialchars($dir)."</a>", 'name');
+                print_cell('right', $filesize, 'size');
+                print_cell('right', $filedate, 'date');
                 if ($wdir.$dir === '/moddata') {
                     print_cell();
                 } else { 
-                    print_cell("right", "<a href=\"{$CFG->wwwroot}/enrol/sync/file.php?id=$id&amp;wdir=$wdir&amp;file=$filesafe&amp;action=rename&amp;choose=$choose\">$strrename</a>", 'commands');
+                    print_cell('right', "<a href=\"{$CFG->wwwroot}/enrol/sync/file.php?id=$id&amp;wdir=$wdir&amp;file=$filesafe&amp;action=rename&amp;choose=$choose\">$strrename</a>", 'commands');
                 }
             }
 
@@ -821,11 +824,11 @@ function displaydir ($wdir) {
             $fileurlsafe = rawurlencode($fileurl);
             $filedate    = userdate(filemtime($filename), get_string('strftimedatetime'));
 
-            $selectfile = trim($fileurl, "/");
+            $selectfile = trim($fileurl, '/');
 
             echo "<tr class=\"file\">";
 
-            print_cell("center", "<input type=\"checkbox\" name=\"file$count\" value=\"$fileurl\" />", 'checkbox');
+            print_cell('center', "<input type=\"checkbox\" name=\"file$count\" value=\"$fileurl\" />", 'checkbox');
             echo "<td align=\"left\" style=\"white-space:nowrap\" class=\"name\">";
 
            $ffurl = get_syncfile_url($fileurl);

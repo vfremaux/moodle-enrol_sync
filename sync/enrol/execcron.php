@@ -12,10 +12,13 @@
 	admin_externalpage_setup('sync');
 	
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
+    }
+	if (!$adminuser = get_admin()) {
+        print_error('errornoadmin', 'enrol_sync');
     }
 	
-	require_once("$CFG->dirroot/enrol/sync/enrol/enrols.php");
+	require_once("$CFG->dirroot/enrol/sync/enrol/enrols.class.php");
     $enrolmanager = new enrol_plugin_manager;
 	
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),

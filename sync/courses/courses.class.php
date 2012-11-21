@@ -23,8 +23,8 @@ class courses_plugin_manager {
 	/// Override the base config_form() function
 	function config_form($frm) {
 	    global $CFG;
-	
-	    $vars = array('course_filedeletelocation', 'course_fileuploadlocation', 'reset_course_file', 'file_course_exist');
+
+	    $vars = array('course_filedeletelocation', 'course_fileuploadlocation', 'reset_course_file', 'course_fileexistlocation');
 	    foreach ($vars as $var) {
 	        if (!isset($frm->$var)) {
 	            $frm->$var = '';
@@ -33,7 +33,7 @@ class courses_plugin_manager {
 	
 	    $roles = get_records('role', '', '', '', 'id, name, shortname');
 	    $ffconfig = get_config('course');
-	
+
 	    $frm->enrol_flatfilemapping = array();
 	    foreach($roles as $id => $record) {
 			$mapkey = "map_{$record->shortname}";
@@ -52,7 +52,7 @@ class courses_plugin_manager {
 		global $CFG;
 
 	    if (!isset($config->course_filedeletelocation)) {
-	        $config->course_filedeletelocation = '';
+	        $config->course_filedeletelocation = 0;
 	    }
 	    set_config('course_filedeletelocation', $config->course_filedeletelocation);
 
@@ -60,18 +60,22 @@ class courses_plugin_manager {
 	        $config->course_filedeleteidentifier = 0;
 	    }
 	    set_config('course_filedeleteidentifier', $config->course_filedeleteidentifier);
-		
-	
+
 	    if (!isset($config->course_fileuploadlocation)) {
 	        $config->course_fileuploadlocation = '';
 	    }
 	    set_config('course_fileuploadlocation', $config->course_fileuploadlocation);
-	
-	    if (!isset($config->file_course_exist)) {
-	        $config->file_course_exist = '';
+
+	    if (!isset($config->course_fileexistlocation)) {
+	        $config->course_fileexistlocation = '';
 	    }
-	    set_config('file_course_exist', $config->file_course_exist);		
-		
+	    set_config('course_fileexistlocation', $config->course_fileexistlocation);		
+	    if (!isset($config->course_existfileidentifier)) {
+	        $config->course_existfileidentifier = 0;
+	    }
+	    set_config('course_existfileidentifier', $config->course_existfileidentifier);
+
+
 	    if (!isset($config->reset_course_file)) {
 	        $config->reset_course_file = '';
 	    }
@@ -81,7 +85,7 @@ class courses_plugin_manager {
 	        $config->sync_forcecourseupdate = 0;
 	    }
 	    set_config('sync_forcecourseupdate', $config->sync_forcecourseupdate);	
-				
+		
 	    return true;
 	}
     
@@ -108,13 +112,13 @@ class courses_plugin_manager {
 	    }
 		
 		if (empty($this->controlfiles->check)){
-			if (empty($CFG->file_course_exist)) {
+			if (empty($CFG->course_fileexistlocation)) {
 	            $this->controlfiles->check = $CFG->dataroot.'/sync/courses.csv';  // Default location
 	        } else {
-	            $this->controlfiles->check = $CFG->dataroot.'/'.$CFG->file_course_exist;
+	            $this->controlfiles->check = $CFG->dataroot.'/'.$CFG->course_fileexistlocation;
 	        }
 	    }
-
+	    
 	/// process files
 
 		if(file_exists($this->controlfiles->check) && ($this->execute & SYNC_COURSE_CHECK)){
@@ -129,6 +133,9 @@ class courses_plugin_manager {
 
 				$i = 0;
 
+				$identifieroptions = array('idnumber', 'shortname', 'id');
+				$identifiername = $identifieroptions[0 + @$CFG->course_existfileidentifier];
+
 				while (!feof($fp)) {					
 					
 					$text = fgets($fp, 1024);
@@ -137,16 +144,16 @@ class courses_plugin_manager {
 					if (sync_is_empty_line_or_format($text, $i == 0)){
 						continue;
 					}
-										
+					
 					$valueset = explode($CFG->sync_csvseparator, $text);
 
 					$size = count($valueset);
 
-					if($size == 2){
+					if($size > 0){
 						$c = new StdClass;
-						$c->idnumber = $valueset[0];
-						$c->description = $valueset[1];
-						$course = get_record('course', 'idnumber', $c->idnumber);
+						$c->$identifiername = $valueset[0];
+						if ($size == 2) $c->description = $valueset[1];
+						$course = get_record('course', $identifiername, $c->$identifiername);
 
 						// give report on missing courses
 						if(!$course){
@@ -155,7 +162,6 @@ class courses_plugin_manager {
 							enrol_sync_report($CFG->courselog, get_string('coursefoundas', 'enrol_sync', $course));
 						}
 					}
-					
 					$i++;
 				}
 			} else {
@@ -166,18 +172,15 @@ class courses_plugin_manager {
 
 	/// delete (clean) courses
         if (file_exists($this->controlfiles->deletion) && ($this->execute & SYNC_COURSE_DELETE)) {
-
+        	
 			$fh = fopen($this->controlfiles->deletion, 'rb');
 
             if ($fh) {
-				
 				$i = 0;
 				$shortnames = array();
 
 				while (!feof($fh)) {					
-					
 					$text = fgets($fh);
-					
 					// skip comments and empty lines
 					if (sync_is_empty_line_or_format($text, $i)){
 						continue;
@@ -187,7 +190,6 @@ class courses_plugin_manager {
 				
 				// Fill this with a list of comma seperated id numbers to delete courses.
 				$deleted = 0;
-				
 				$identifieroptions = array('idnumber', 'shortname', 'id');
 				$identifiername = $identifieroptions[0 + @$CFG->course_filedeleteidentifier];
 				
@@ -204,7 +206,6 @@ class courses_plugin_manager {
 						enrol_sync_report($CFG->courselog, get_string('coursedeleted', 'enrol_sync', $cid));
 					}
 				}
-				
 				if ($deleted){				
 					fix_course_sortorder();
 				}									
@@ -217,14 +218,12 @@ class courses_plugin_manager {
 				$archivename = $CFG->dataroot."/sync/archives/{$now}_deletion_$archivename";
 				copy($this->controlfiles->deletion, $archivename);
 			}
-			
 			if (!empty($CFG->sync_filecleanup)){
 				@unlink($this->controlfiles->deletion);
 			}
         }
-		
+
 	/// update/create courses
-	
 		if (file_exists($this->controlfiles->creation) && ($this->execute & SYNC_COURSE_CREATE)) {
 
 	        // make arrays of fields for error checking
@@ -233,10 +232,10 @@ class courses_plugin_manager {
 
 	        $required = array(  'fullname' => false, // Mandatory fields
 	                            'shortname' => false);
-	
+
 	        $optional = array(  'category' => $defaultcategory, // Default values for optional fields
 	                            'sortorder' => 0,
-	                            'summary' => get_string('couresedefaultsummary', 'enrol_sync'),
+	                            'summary' => get_string('coursedefaultsummary', 'enrol_sync'),
 	                            'format' => 'weeks',
 	                            'showgrades' => 1,
 	                            'newsitems' => 5,
@@ -269,6 +268,7 @@ class courses_plugin_manager {
 								'expirynotify' => 0,
 								'expirythreshold' => 10);
 
+			// TODO : change default format from weeks to course default options
 	        $validate = array(  'fullname' => array(1,254,1), // Validation information - see validate_as function
 	                            'shortname' => array(1,15,1),
 	                            'category' => array(5),
@@ -310,9 +310,9 @@ class courses_plugin_manager {
 	                            'teacher_role' => array(1,40,0));
 			
 			$fu = @fopen($this->controlfiles->creation, 'rb');
-			
+
 			$i = 0;
-			
+
 			if ($fu) {
 
 				while(!feof($fu)){
@@ -324,10 +324,16 @@ class courses_plugin_manager {
 				}
 
 				$header = split($CFG->sync_csvseparator, $text);
-		
-        		// check for valid field names
 
-        		foreach ($header as $h) {			
+        		// check for valid field names
+        		
+        		function trim_values(&$e){
+        			$e = trim($e);
+        		}
+        		
+        		array_walk($header, 'trim_values');
+        		
+        		foreach ($header as $h) {
 		            if (empty($h)){
 		                enrol_sync_report($CFG->courselog, get_string('errornullcsvheader', 'enrol_sync'));
 		                return;
@@ -336,10 +342,10 @@ class courses_plugin_manager {
                     } elseif (preg_match(TEACHER_FIELD, $h)) {                         
                     } else {
                 		if (!(isset($required[$h]) || isset($optional[$h]))){ 
-			                enrol_sync_report($CFG->courselog, get_string('invalidfieldname', 'error', $h));
+			                enrol_sync_report($CFG->courselog, get_string('errorinvalidfieldname', 'enrol_sync', $h));
 			                return;
 						}
-					
+
                 		if (isset($required[$h])){
 							$required[$h] = true; 
 						}
@@ -360,7 +366,7 @@ class courses_plugin_manager {
 				$courseteachers = array();
 
 				// start processing lines
-	
+
         		while (!feof($fu)) {
         			$text = fgets($fu, 1024);
 
@@ -370,7 +376,7 @@ class courses_plugin_manager {
 					}
 					
 					$valueset = explode($CFG->sync_csvseparator, $text);
-        				
+        			
             		if (count($valueset) != $fieldcount){					
                			$e->i = $i;
                			$e->count = count($valueset);
@@ -399,14 +405,14 @@ class courses_plugin_manager {
                 		if (preg_match(TOPIC_FIELD, $cf, $matches)) {
                   			$coursetopics[$matches[2]] = $this->validate_as($value, $matches[1], $i, $cf);
                 		} elseif (preg_match(TEACHER_FIELD, $cf, $matches)) {
-                  			$tmp = $this->validate_as($value, $matches[1].$matches[3], $i, $cf);
+                  			$tmp = $this->validate_as(trim($value), $matches[1].$matches[3], $i, $cf);
                   			(isset($tmp) && ($tmp != '')) and ($courseteachers[$matches[2]][$matches[3]] = $tmp);
                 		} else {						
                     		$coursetocreate[$cf] = $this->validate_as($value, $cf, $i); // Accept value if it passed validation
                 		}
             		}
             		$coursetocreate['topics'] = $coursetopics;
-				
+
             		if (isset($courseteachers)){
                 		foreach ($courseteachers as $key => $value){ // Deep validate course teacher info on second pass
 	                  		if (isset($value) && (count($value) > 0)){
@@ -433,24 +439,25 @@ class courses_plugin_manager {
             	}
         	}
         	fclose($fu);
-        
+
 	        if (empty($bulkcourses)){
     			enrol_sync_report($CFG->courselog, get_string('errornocourses', 'enrol_sync'));
     			return;
 	        }
-            
+	        
+	        /// All validation is over. Starting the course creation process
+
         	// Running Status Totals
-        
+        	
 	        $t = 0; // Read courses
 	        $s = 0; // Skipped courses
 	        $n = 0; // Created courses
 	        $p = 0; // Broken courses (failed halfway through
-        
+        	
 	        $cat_e = 0; // Errored categories
 	        $cat_c = 0; // Created categories
 
 	        foreach ($bulkcourses as $i => $bulkcourse) {
-	        	
             	$a->shortname = $bulkcourse['shortname'];
             	$a->fullname = $bulkcourse['fullname'];
 
@@ -553,7 +560,7 @@ class courses_plugin_manager {
 		                    
 		                    $curparent = 0;
 		                    $curstatus = 0;
-		    
+		    				
 		                    foreach ($bulkcourse['category'] as $catindex => $catname) {
 		                      	$curparent = $this->fast_get_category_ex($catname, $curstatus, $curparent);
 		                        switch ($curstatus) {
@@ -787,7 +794,7 @@ class courses_plugin_manager {
     
 	        case 3: // Timestamp - validates and converts to Unix Time
 	        	$value = strtotime($value);
-	            if (!$checktime){
+	            if ($value == -1){ // failure
                 	$e->i = $lineno;
                 	$e->fieldname = $fieldname;
 					enrol_sync_report($CFG->courselog, get_string('errorvalidationtimecheck', 'enrol_sync', $e));
@@ -818,10 +825,8 @@ class courses_plugin_manager {
 					}
 	            } elseif ($this->check_is_string($value)) {
 	               	// It's a Category Path string
-	               
 	               	$value = trim(str_replace('\\','/',$value)," \t\n\r\0\x0B/");
 	               	// Clean path, ensuring all slashes are forward ones
-	               
 	               	if (strlen($value) <= 0){
 	                	$e->i = $lineno;
 	                	$e->fieldname = $fieldname;
@@ -831,7 +836,7 @@ class courses_plugin_manager {
 	                
 	                unset ($cats);
 	                $cats = explode('/', $value); // Break up path into array
-	                	                
+					
 	                if (count($cats) <= 0){
 	                	$e->i = $lineno;
 	                	$e->fieldname = $fieldname;
@@ -839,11 +844,11 @@ class courses_plugin_manager {
 						enrol_sync_report($CFG->courselog, get_string('errorvalidationcategorybadpath', 'enrol_sync', $e));
 						return;
 	                }
-	                          
+	                
 	                foreach ($cats as $n => $item) { // Validate the path
-	                  
+	                
 	                  	$item = trim($item); // Remove outside whitespace
-	                  
+	                	
 	                  	if (strlen($item) > 100){ 
 		                	$e->i = $lineno;
 		                	$e->fieldname = $fieldname;
@@ -863,7 +868,6 @@ class courses_plugin_manager {
 	                
 	                $value = $cats; // Return the array
 	                unset ($cats);
-	               
 	            } else {
                 	$e->i = $lineno;
                 	$e->fieldname = $fieldname;
@@ -904,9 +908,9 @@ class courses_plugin_manager {
 							enrol_sync_report($CFG->courselog, get_string('errorvalidationsearchmisses', 'enrol_sync', $e));
 		                    return;
 	                    }
-	
+						
 	                    $value = $uid; // Return found user id
-	
+						
 	                } else {
 	                	$e->i = $lineno;
 	                	$e->fieldname = $fieldname;
@@ -914,7 +918,7 @@ class courses_plugin_manager {
 	                    return;
 	                }
 	            } else {
-	              	if ($format[2] == 1){ // Not null?
+	              	if ($format[1] == 1){ // Not null?
 	                	$e->i = $lineno;
 	                	$e->fieldname = $fieldname;
 						enrol_sync_report($CFG->courselog, get_string('errorvalidationempty', 'enrol_sync', $e));
@@ -960,6 +964,7 @@ class courses_plugin_manager {
         } else {
         	
         	if (!$parent = get_record('course_categories', 'id', $hparent)){
+        		$parent = new StdClass;
         		$parent->path = '';
         		$parent->depth = 0;
         		$hparent = 0;

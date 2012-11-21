@@ -17,13 +17,13 @@
         error('You must be an administrator to edit courses in this way.');
     }
 	if (! $site = get_site()) {
-        error('Could not find site-level course');
+        print_error('errornosite', 'enrol_sync');
     }
 	if (!$adminuser = get_admin()) {
-        error('Could not find site admin');
+        print_error('errornoadmin', 'enrol_sync');
     }
 	
-	require_once("$CFG->dirroot/enrol/sync/users/users.php");
+	require_once("$CFG->dirroot/enrol/sync/users/users.class.php");
 	$usersmanager = new users_plugin_manager;
 
 	$navlinks[] = array('name' => get_string('synchronization', 'enrol_sync'),
@@ -44,7 +44,6 @@
 	$address = $CFG->users_filelocation;
 
 	$usermgtmanual = get_string('usermgtmanual', 'enrol_sync');
-	$backtoprevious = get_string('returntotools', 'enrol_sync');
 	$cronrunmsg = get_string('cronrunmsg', 'enrol_sync', $address);
 
 	echo "<br/><fieldset><legend><strong>$usermgtmanual</strong></legend>";
@@ -52,9 +51,7 @@
 	echo '</fieldset>';
 
 	// always return to main tool view.
-	echo '<center>';
-	echo '<p><input type="button" value="'.get_string('returntotools', 'enrol_sync')."\" onclick=\"document.location.href='{$CFG->wwwroot}/enrol/sync/sync.php?sesskey={$USER->sesskey}';\"></p>";
-	echo '</center>';
+	sync_print_return_button();
 
 	print_footer();
 ///    exit;

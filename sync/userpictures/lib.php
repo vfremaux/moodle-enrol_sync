@@ -2,8 +2,12 @@
 
 /**
 * A local library revamped from 
-* @see /admin/uploadpicture.php 
+* @author Valery Fremaux (valery.fremaux@gmail.com)
+* @see /admin/tool/uploaduser/picture.php 
 *
+* The essential reasons of the revamping are : 
+* - getting a real library of function (original functions embedded in page script) 
+* - changing notifications to message logging output
 */
 
 /**
@@ -17,7 +21,18 @@
  *
  * @return string The full path to the temp directory.
  */
+/**
+ * Create a unique temporary directory with a given prefix name,
+ * inside a given directory, with given permissions. Return the
+ * full path to the newly created temp directory.
+ *
+ * @param string $dir where to create the temp directory.
+ * @param string $prefix prefix for the temp directory name (default '')
+ *
+ * @return string The full path to the temp directory.
+ */
 function sync_my_mktempdir($dir, $prefix='', $mode=0700) {
+
     if (substr($dir, -1) != '/') {
         $dir .= '/';
     }
@@ -46,7 +61,7 @@ function sync_process_directory ($dir, $userfield, $overwrite, &$results) {
 	global $CFG;
 	
     if(!($handle = opendir($dir))) {
-        enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_cannotprocessdir','admin'));
+    	enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_cannotprocessdir','admin'));
         return;
     }
 
@@ -90,20 +105,18 @@ function sync_process_file ($file, $userfield, $overwrite) {
 	global $CFG;
 	
     // Add additional checks on the filenames, as they are user
-    // controlled and we don't want to open any security holes.    
+    // controlled and we don't want to open any security holes.
     $path_parts = pathinfo(cleardoubleslashes($file));
     $basename  = $path_parts['basename'];
     $extension = $path_parts['extension'];
     
     // The picture file name (without extension) must match the
     // userfield attribute.
-    $uservalue = substr($basename, 0,
-                        strlen($basename) -
-                        strlen($extension) - 1);
+    $uservalue = substr($basename, 0, strlen($basename) - strlen($extension) - 1);
 
     // userfield names are safe, so don't quote them.    
     if (!($user = get_record('user', $userfield, addslashes($uservalue),'deleted',0))) {
-        $a = new Object();
+        $a = new StdClass();
         $a->userfield = clean_param($userfield, PARAM_CLEANHTML);
         $a->uservalue = clean_param($uservalue, PARAM_CLEANHTML);
         enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_usernotfound', 'admin', $a));
@@ -112,16 +125,16 @@ function sync_process_file ($file, $userfield, $overwrite) {
 
     $haspicture = get_field('user', 'picture', 'id', $user->id);
     if ($haspicture && !$overwrite) {
-        enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_userskipped', 'admin', "$user->username ($user->idnumber)"));
+    	enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_userskipped', 'admin', "$user->username ($user->idnumber)"));
         return PIX_FILE_SKIPPED;
     }
 
     if (sync_my_save_profile_image($user->id, $file)) {
         set_field('user', 'picture', 1, 'id', $user->id);
-        enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_userupdated', 'admin', "$user->username ($user->idnumber)"));
+    	enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_userupdated', 'admin', "$user->username ($user->idnumber)"));
         return PIX_FILE_UPDATED;
     } else {
-        enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_cannotsave', 'admin', "$user->username ($user->idnumber)"));
+    	enrol_sync_report($CFG->userpictureslog, get_string('uploadpicture_cannotsave', 'admin', "$user->username ($user->idnumber)"));
         return PIX_FILE_ERROR;
     }
 }
@@ -134,7 +147,7 @@ function sync_process_file ($file, $userfield, $overwrite) {
  *                picture file to.
  * @param string $originalfile the full path of the picture file.
  *
- * @return bool 
+ * @return bool
  */
 function sync_my_save_profile_image($id, $originalfile) {
     $destination = create_profile_image_destination($id, 'user');

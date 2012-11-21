@@ -32,7 +32,6 @@ class enrol_plugin_manager {
 	    	$mapkey = "map_{$record->shortname}";
 	        $frm->enrol_flatfilemapping[$id] = array(
 	            $record->name,
-	            
 	            isset($ffconfig->$mapkey) ? $ffconfig->$mapkey : $record->shortname
 	        );
 	    }	    
@@ -46,16 +45,26 @@ class enrol_plugin_manager {
 	        $config->enrol_filelocation = '';
 	    }
 	    set_config('enrol_filelocation', $config->enrol_filelocation);
-		
+
+	    if (!isset($config->enrol_courseidentifier)) {
+	        $config->enrol_courseidentifier = '';
+	    }
+	    set_config('enrol_courseidentifier', $config->enrol_courseidentifier);
+
+	    if (!isset($config->enrol_useridentifier)) {
+	        $config->enrol_useridentifier = '';
+	    }
+	    set_config('enrol_useridentifier', $config->enrol_useridentifier);
+
 	    if (!isset($config->enrol_mailadmins)) {
 	        $config->enrol_mailadmins = '';
 	    }
-	    set_config('enrol_mailadmins', $config->enrol_mailadmins);	
-	
+	    set_config('enrol_mailadmins', $config->enrol_mailadmins);
+		
 	    if (!isset($config->enrol_defaultcmd)) {
 	        $config->enrol_defaultcmd = '';
 	    }
-	    set_config('enrol_defaultcmd', $config->enrol_defaultcmd);	
+	    set_config('enrol_defaultcmd', $config->enrol_defaultcmd);
 	    return true;
 	}
 
@@ -86,7 +95,7 @@ class enrol_plugin_manager {
 			enrol_sync_report($CFG->enrollog, get_string('filenotfound', 'enrol_sync', "$filename"));		
 			return;
         }
-            
+        
 		enrol_sync_report($CFG->enrollog, get_string('flatfilefoundforenrols', 'enrol_sync').$filename."\n");
 		
 		$required = array(
@@ -121,6 +130,12 @@ class enrol_plugin_manager {
 
 		$headers = split($csv_delimiter, $text);
 		
+		function trim_fields(&$e){
+			$e = trim($e);
+		}
+		
+		array_walk($headers, 'trim_fields');
+		
 		foreach ($headers as $h) {				
 			$header[] = trim($h); // remove whitespace			
 			if (!(isset($required[$h]) or isset($optional[$h]))) {
@@ -136,8 +151,9 @@ class enrol_plugin_manager {
 				enrol_sync_report($CFG->enrollog, get_string('errorrequiredcolumn', 'enrol_sync', $key));
 				return;
 			}
-		}		
-				
+		}
+		
+		// Starting processing lines
 		$i = 2;
 		while (!feof ($fp)) {
 
@@ -156,10 +172,17 @@ class enrol_plugin_manager {
 			$e->i = $i;
 			$e->mycmd = $record['cmd'];
 			$e->myrole = $record['rolename'];
-			$e->myuser = $record['uid']; // user idnumber
-			$e->mycourse = $record['cid']; // course idnumber
+
+			$cidentifieroptions = array('idnumber', 'shortname', 'id');
+			$cidentifiername = $cidentifieroptions[0 + @$CFG->enrol_courseidentifier];
+
+			$uidentifieroptions = array('idnumber', 'username', 'email', 'id');
+			$uidentifiername = $uidentifieroptions[0 + @$CFG->enrol_useridentifier];
+
+			$e->myuser = $record['uid']; // user identifier
+			$e->mycourse = $record['cid']; // course identifier
 			
-			if (!$user = get_record('user', 'idnumber', $record['uid']) ) {
+			if (!$user = get_record('user', $uidentifiername, $record['uid']) ) {
 				enrol_sync_report($CFG->enrollog, get_string('errornouser', 'enrol_sync', $e));
 				$i++;
 				if (!empty($CFG->sync_filefailed)) sync_feed_tryback_file($filename, $text, $headers);
@@ -175,7 +198,7 @@ class enrol_plugin_manager {
 				continue;
 			}
 
-			if (!$course = get_record('course', 'idnumber', $record['cid']) ) {
+			if (!$course = get_record('course', $cidentifiername, $record['cid']) ) {
 				enrol_sync_report($CFG->enrollog, get_string('errornocourse', 'enrol_sync', $e));
 				$i++;
 				if (!empty($CFG->sync_filefailed)) sync_feed_tryback_file($filename, $text, $headers);
@@ -188,15 +211,12 @@ class enrol_plugin_manager {
 			if(isset($record['cmd'])){				
 				if($record['cmd'] == 'del'){
 					if($role = get_record('role', 'shortname', $record['rolename'])){
-					
 						if(!role_unassign($role->id, $user->id, null, $context->id)){
 							enrol_sync_report($CFG->enrollog, get_string('errorunassign', 'enrol_sync', $e));				
 						} else {
 							enrol_sync_report($CFG->enrollog, get_string('unassign', 'enrol_sync', $e));
 						}
-						
 					} else {
-					
 						if(!role_unassign(null, $user->id, null, $context->id)){
 							enrol_sync_report($CFG->enrollog, get_string('errorunassign', 'enrol_sync', $e));
 						} else {
@@ -230,8 +250,6 @@ class enrol_plugin_manager {
 								enrol_sync_report($CFG->enrollog, get_string('alreadyassigned', 'enrol_sync', $e));
 							}
 						}
-						
-						//On add le role pour cet utilisateur dans ce contexte de cours
 					} else {
 						if (!empty($CFG->sync_filefailed)) sync_feed_tryback_file($filename, $text, $headers);
 						enrol_sync_report($CFG->enrollog, get_string('errornorole', 'enrol_sync', $e));
