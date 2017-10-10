@@ -1,4 +1,4 @@
-<?php // $Id: version.php,v 1.1 2012-10-29 22:29:52 vf Exp $
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,19 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Flat file enrolment plugin version specification.
+ * Sync access plugin version specification.
  *
- * @package    enrol
- * @subpackage sync
- * @copyright  2010 Valery Fremaux 
- * @author     Valery Fremaux
+ * @package    enrol_sync
+ * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version  = 2012102200;
-$plugin->requires  = 2011112900;        // Requires this Moodle version
-$plugin->component = 'enrol_sync';  // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 60;
-$plugin->maturity = MATURITY_BETA;
-$plugin->dependencies = array('block_publishflow' => 2012112902);
-$module->release = '2.2.0 (Build 2012102200)';
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version   = 2016052300;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2014110400;        // Requires this Moodle version.
+$plugin->component = 'enrol_sync';     // Full name of the plugin (used for diagnostics).
+$plugin->release = '2.8.0 (Build 2015101601)';
+$plugin->maturity   = MATURITY_BETA;
+
+// Non moodle attributes.
+$plugin->codeincrement = '2.8.0000';

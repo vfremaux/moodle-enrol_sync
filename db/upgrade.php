@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Flatfile enrolments plugin settings and presets.
+ * This file keeps track of upgrades to the guest enrolment plugin.
  *
- * @package    enrol
- * @subpackage sync
- * @copyright  2010 Valery Feemaux
- * @author     Valery Fremaux - based on code by Petr Skoda and others
+ * @package    enrol_sync
+ * @copyright  2017 Valery Frémaux {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-if ($ADMIN->fulltree) {
+function xmldb_enrol_sync_upgrade($oldversion) {
+    global $CFG;
 
-    //--- general settings -----------------------------------------------------------------------------------
-	$ADMIN->add('root', new admin_externalpage('sync', get_string('enrolname', 'enrol_sync'), "{$CFG->wwwroot}/enrol/sync/sync.php"));
-
+    return true;
 }

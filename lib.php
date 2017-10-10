@@ -1,200 +1,243 @@
 <?php
-
-define('SYNC_COURSE_CHECK', 0x001);
-define('SYNC_COURSE_CREATE', 0x002);
-define('SYNC_COURSE_DELETE', 0x004);
-define('SYNC_COURSE_CREATE_DELETE', 0x006);
-
-/**
-* prints a report to a log stream and output ir also to screen if required
-*
-*/
-function enrol_sync_report(&$report, $message, $onscreen = true){
-
-	if (empty($report)) $report = '';
-	if ($onscreen) mtrace($message);
-	$report .= $message."\n";
-}
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* Check a CSV input line format for empty or commented lines
-* Ensures compatbility to UTF-8 BOM or unBOM formats
-*/
-function sync_is_empty_line_or_format(&$text, $resetfirst = false){
-	global $CFG;
-	
-	static $textlib;
-	static $first = true;
-		
-	// we may have a risk the BOM is present on first line
-	if ($resetfirst) $first = true;	
-	if (!isset($textlib)) $textlib = new textlib(); // singleton
-	if ($first && $CFG->sync_encoding == 'UTF-8'){
-		$text = $textlib->trim_utf8_bom($text);					
-		$first = false;
-	}
-	
-	$text = preg_replace("/\n?\r?/", '', $text);			
+ * Sync access plugin.
+ *
+ * This plugin does not add any entries into the user_enrolments table,
+ * the access control is granted on the fly via the tricks in require_login().
+ *
+ * @package    enrol_guest
+ * @copyright  2010 Petr Skoda  {@link http://skodak.org}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-	if ($CFG->sync_encoding != 'UTF-8'){
-		$text = utf8_encode($text);
-	}
-	
-	return preg_match('/^$/', $text) || preg_match('/^(\(|\[|-|#|\/| )/', $text);
-}
+defined('MOODLE_INTERNAL') || die();
 
 /**
-* prints a remote file upload for processing form
-*
-*/
-function sync_print_remote_tool_portlet($titlekey, $targeturl, $filefieldname, $submitlabel, $return = false){
-	global $CFG, $USER;
-	
-	$maxuploadsize = get_max_upload_file_size();
+ * Class enrol_sync_plugin
+ *
+ * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class enrol_sync_plugin extends enrol_plugin {
 
-	$str = '<fieldset>';
-	$str .= '<legend><strong>'.get_string($titlekey, 'enrol_sync').'</strong></legend>';
-	$str .= '<center>';
-	$str .= '<form method="post" enctype="multipart/form-data" action="'.$targeturl.'">'.
-		 ' <input type="hidden" name="MAX_FILE_SIZE" value="'.$maxuploadsize.'">'.
-		 '<input type="hidden" name="sesskey" value="'.$USER->sesskey.'">'.
-		 '<input type="file" name="'.$filefieldname.'" size="30">'.
-		 ' <input type="submit" value="'.get_string($submitlabel, 'enrol_sync').'">'.
-		 '</form></br>';
-	$str .= '</center>';
-	$str .= '</fieldset>';
+    /**
+     * All instances are created automatically during the sync process. they canot be deleted or moved
+     * @param int $courseid
+     * @return boolean
+     */
+    public function can_add_instance($courseid) {
 
-	if ($return) return $str;
-	echo $str;
+        return false;
+    }
+
+    /**
+     * Add new instance of enrol plugin.
+     * this plugin is a per course singleton
+     *
+     * @param object $course
+     * @param array instance fields
+     * @return int id of new instance, null if can not be created
+     */
+    public function add_instance($course, array $fields = null) {
+        global $DB;
+
+        $params = array('enrol' => 'sync', 'courseid' => $course->id);
+        if ($instance = $DB->get_record('enrol', $params)) {
+            $instance->status = 0;
+            $DB->update_record('enrol', $instance);
+            return $instance->id;
+        }
+
+        $fields = (array)$fields;
+        return parent::add_instance($course, $fields);
+    }
+
+    /**
+     * Restore instance and map settings.
+     *
+     * @param restore_enrolments_structure_step $step
+     * @param stdClass $data
+     * @param stdClass $course
+     * @param int $oldid
+     */
+    public function restore_instance(restore_enrolments_structure_step $step, stdClass $data, $course, $oldid) {
+        global $DB;
+
+        if (!$DB->record_exists('enrol', array('courseid' => $data->courseid, 'enrol' => $this->get_name()))) {
+            $this->add_instance($course, (array)$data);
+        }
+
+        // No need to set mapping, we do not restore users or roles here.
+        $step->set_mapping('enrol', $oldid, 0);
+    }
+
+    /**
+     * Instances will auto delete when the last synced encolled user has gone away.
+     *
+     * @param object $instance
+     * @return bool
+     */
+    public function can_delete_instance($instance) {
+        return false;
+    }
+
+    /**
+     * Is it possible to hide/show enrol instance via standard UI?
+     *
+     * @param stdClass $instance
+     * @return bool
+     */
+    public function can_hide_show_instance($instance) {
+        return false;
+    }
+
+    /**
+     * Return information for enrolment instance containing list of parameters required
+     * for enrolment, name of enrolment plugin etc.
+     *
+     * @param stdClass $instance enrolment instance
+     * @return stdClass instance info.
+     * @since Moodle 3.1
+     */
+    public function get_enrol_info(stdClass $instance) {
+
+        $instanceinfo = new stdClass();
+        $instanceinfo->id = $instance->id;
+        $instanceinfo->courseid = $instance->courseid;
+        $instanceinfo->type = $this->get_name();
+        $instanceinfo->name = $this->get_instance_name($instance);
+        $instanceinfo->status = $instance->status == ENROL_INSTANCE_ENABLED;
+
+        return $instanceinfo;
+    }
+
+    /**
+     * Return an array of valid options for the status.
+     *
+     * @return array
+     */
+    protected function get_status_options() {
+        $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
+                         ENROL_INSTANCE_DISABLED => get_string('no'));
+        return $options;
+    }
+
+    /**
+     * Add elements to the edit instance form.
+     *
+     * @param stdClass $instance
+     * @param MoodleQuickForm $mform
+     * @param context $context
+     * @return bool
+     */
+    public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
+        global $CFG;
+
+        $options = $this->get_status_options();
+        $mform->addElement('select', 'status', get_string('status', 'enrol_guest'), $options);
+        $mform->addHelpButton('status', 'status', 'enrol_guest');
+        $mform->setDefault('status', $this->get_config('status'));
+        $mform->setAdvanced('status', $this->get_config('status_adv'));
+
+    }
+
+    /**
+     * We are a good plugin and don't invent our own UI/validation code path.
+     *
+     * @return boolean
+     */
+    public function use_standard_editing_ui() {
+        return true;
+    }
+
+    /**
+     * Perform custom validation of the data used to edit the instance.
+     *
+     * @param array $data array of ("fieldname"=>value) of submitted data
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @param object $instance The instance loaded from the DB
+     * @param context $context The context of the instance we are editing
+     * @return array of "element_name" => "error_description" if there are errors,
+     *         or an empty array if everything is OK.
+     * @return void
+     */
+    public function edit_instance_validation($data, $files, $instance, $context) {
+        $errors = array();
+
+        $validstatus = array_keys($this->get_status_options());
+        $tovalidate = array(
+            'status' => $validstatus
+        );
+        $typeerrors = $this->validate_param_types($data, $tovalidate);
+        $errors = array_merge($errors, $typeerrors);
+
+        return $errors;
+    }
+
+    /**
+     * Tells if we have some users enrolled in this instance.
+     * @param object $instance
+     * @return the number of enrolled users in this instance.
+     */
+    protected function has_enrolled_users($instance) {
+        global $DB;
+
+        $params = array('enrolid' => $instance->id);
+        return $DB->count_records('user_enrolments', $params);
+    }
+
+    /**
+     * Enrols a user ensuring a sync enrol plugin instance is present in the course.
+     * @param object $course the course record
+     * @param int $userid
+     * @param int $roleid
+     * @param int $timestart
+     * @param int $timeeend
+     * @param bool $status
+     */
+    static public function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null) {
+        global $DB;
+
+        $plugin = enrol_get_plugin('sync');
+        $instanceid = $plugin->add_instance($course);
+        $instance = $DB->get_record('enrol', array('id' => $instanceid));
+        $plugin->enrol_user($instance, $userid, $roleid, $timestart, $timeend, $status, null);
+    }
+
+    /**
+     * Enrols a user from the sync enrol plugin. Deletes the instance if last synced user is unenrolled from course.
+     * @param object $course the course record
+     * @param int $userid
+     * @param int $roleid
+     * @param int $timestart
+     * @param int $timeeend
+     * @param bool $status
+     */
+    static public function static_unenrol_user($course, $userid) {
+        global $DB;
+
+        $plugin = enrol_get_plugin('sync');
+        $instanceid = $plugin->add_instance($course);
+        $instance = $DB->get_record('enrol', array('id' => $instanceid));
+        $plugin->unenrol_user($instance, $userid);
+
+        if (!$plugin->has_enrolled_users($instance)) {
+            $plugin->delete_instance($instance);
+        }
+    }
 }
-
-/**
-* prints the form for using the registered commande file (locally on server)
-*
-*/
-function sync_print_local_tool_portlet($config, $titlekey, $targeturl, $return = false){
-	global $USER, $CFG;
-	
-	$str = '<fieldset>';
-	$str .= '<legend><strong>'.get_string($titlekey, 'enrol_sync').'</strong></legend><br/>';
-
-	if(empty($config)){
-	 	$nofilestoredstr = get_string('nofileconfigured', 'enrol_sync');
-		$str .= "<center>$nofilestoredstr<br/>";
-	} else {
-		if(file_exists($CFG->dataroot.'/'.$config)){
-			$filestoredstr = get_string('storedfile', 'enrol_sync', $config); 			
-			$syncfilelocation = str_replace('sync/', '', $config);
-			$str .= "<center>$filestoredstr. <a href=\"$CFG->wwwroot/enrol/sync/file.php?file=/{$syncfilelocation}&forcedownload=1\" target=\"_blank\">".get_string('getfile', 'enrol_sync')."</a><br/><br/></center>";
-			$str .= '<form method="post" action="'.$targeturl.'"><center>';
-			$str .= '<input type="hidden" name="sesskey" value="'.$USER->sesskey.'">';
-			$str .= '<input type="hidden" name="uselocal" value="1">';
-			$str .= get_string('createtextreport', 'enrol_sync');
-			$str .= ' <input type="radio" name="report" value="1" checked/> '.get_string('yes').'. <input type=radio name="report" value="0"/> '.get_string('no').'<br/><br/>';
-			$str .= ' <input type="submit" value="'.get_string('process', 'enrol_sync').'">';
-			$str .= '</center></form>';	
-		} else {
-			$filenotfoundstr = get_string('filenotfound', 'enrol_sync', $config);
-			$str .= "<center>$filenotfoundstr<br/><br/>";
-		}
-	}		 
-	$str .= '</br></fieldset>';
-	
-	if ($return) return $str;
-	echo $str;
-}
-
-function sync_print_return_button(){
-	global $CFG, $OUTPUT;
-	
-	echo '<center>';
-	echo '<hr/>';
-	echo '<br/>';
-	$url = new moodle_url($CFG->wwwroot.'/enrol/sync/sync.php', array('sesskey' => sesskey()));
-	$text = get_string('returntotools', 'enrol_sync');
-	$single_button = new single_button($url, $text, 'get');
-	echo $OUTPUT->render($single_button);
-	echo '<br/>';			 
-	echo '</center>';
-}
-
-/**
-* Get course and role assignations summary
-* TODO : Rework for PostGre compatibility.
-*/
-function sync_get_all_courses(){
-	global $CFG, $DB;
-
-	$sql = "
-		SELECT
-			IF(ass.roleid IS NOT NULL , CONCAT( c.id, '_', ass.roleid ) , CONCAT( c.id, '_', '0' ) ) AS recid, 
-			c.id,
-			c.shortname, 
-			c.fullname, 
-			count( DISTINCT ass.userid ) AS people, 
-			ass.rolename
-		FROM
-			{course} c
-		LEFT JOIN
-			(SELECT
-			    co.instanceid,
-				ra.userid, 
-				r.name as rolename,
-				r.id as roleid
-			 FROM
-				{context} co,
-				{role_assignments} ra,
-				{role} r
-			 WHERE
-				co.contextlevel = 50 AND
-				co.id = ra.contextid AND
-				ra.roleid = r.id) ass
-		ON
-			ass.instanceid = c.id
-		GROUP BY
-			recid
-		ORDER BY
-			c.shortname
-	";
-	$results = $DB->get_records_sql($sql);
-	return $results;
-}
-
-/**
-* Create and feeds tryback file with failed records from an origin command file
-* @param string $originfilename the origin command fiale name the tryback name will be guessed from
-* @param string $line the initial command line that has failed (and should be replayed after failure conditions have been fixed)
-* @param mixed $header the header fields to be reproduced in the tryback file as a string, or an array of string.
-*/
-function sync_feed_tryback_file($originfilename, $line, $header = ''){
-	global $CFG;
-	
-	static $TRYBACKFILE = null;
-	static $ORIGINFILE = '';
-
-	// guess the name of the tryback
-	$path_parts = pathinfo($originfilename);
-	$trybackfilename = $path_parts['dirname'].'/'.$path_parts['filename'].'_tryback_'.date('Ymd-Hi').'.'.$path_parts['extension'];
-	
-	// if changing dump, close opened
-	if ($originfilename != $ORIGINFILE){
-		if (!is_null($TRYBACKFILE)){
-			fclose($TRYBACKFILE);
-		}
-		$TRYBACKFILE = fopen($trybackfilename, 'wb');
-		$ORIGINFILE = $originfilename;
-		if (!empty($header)){
-			if (is_string($header)){
-				fputs($TRYBACKFILE, $header."\n");
-			} else {
-				fputs($TRYBACKFILE, implode($CFG->sync_csvseparator, $header)."\n");
-			}
-			fputs($TRYBACKFILE, '--------------------------------------------------'."\n");
-		}
-	}
-	
-	// dumpline
-	fputs($TRYBACKFILE, $line."\n");
-}
-
-?>

@@ -15,17 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'enrol_sync', language 'en'.
+ * Guest enrolment external functions and service definitions.
  *
  * @package    enrol_sync
- * @copyright  2010 onwards Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @category   external
+ * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since      Moodle 3.1
  */
 
-$string['pluginname'] = 'Inscriptions synchronisées par CSV';
-$string['pluginname_desc'] = 'Ce plugin n\'est pas interactif et sert à la spécialisation des inscriptions obtenues par synchronisation automatique par des fichiers CSV.';
-$string['status'] = 'Autoriser les insciptions synchronisées';
-$string['status_desc'] = 'Allow temporary synced access by default.';
-$string['status_help'] = 'This setting determines whether a user can access the course when owning a synced enrolment instance.';
-$string['status_link'] = 'enrol/synced';
-$string['sync:config'] = 'Peut configurer';
+$functions = array(
+
+    'enrol_sync_get_instance_info' => array(
+        'classname'   => 'enrol_sync_external',
+        'methodname'  => 'get_instance_info',
+        'description' => 'Return sync enrolment instance information.',
+        'type'        => 'read',
+        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+    ),
+);
