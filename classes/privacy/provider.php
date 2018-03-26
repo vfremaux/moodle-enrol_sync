@@ -14,21 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Sync access plugin version specification.
- *
- * @package    enrol_sync
- * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace enrol_sync\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016052300;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017050500;        // Requires this Moodle version.
-$plugin->component = 'enrol_sync';     // Full name of the plugin (used for diagnostics).
-$plugin->release = '3.4.0 (Build 2016052300)';
-$plugin->maturity   = MATURITY_RC;
-
-// Non moodle attributes.
-$plugin->codeincrement = '3.4.0000';
+class provider implements \core_privacy\local\metadata\null_provider {
+}
