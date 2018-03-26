@@ -22,10 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Inscriptions synchronisées par CSV';
-$string['pluginname_desc'] = 'Ce plugin n\'est pas interactif et sert à la spécialisation des inscriptions obtenues par synchronisation automatique par des fichiers CSV.';
+$string['pluginname'] = 'Inscriptions automatisées';
 $string['status'] = 'Autoriser les insciptions synchronisées';
 $string['status_desc'] = 'Allow temporary synced access by default.';
 $string['status_help'] = 'This setting determines whether a user can access the course when owning a synced enrolment instance.';
 $string['status_link'] = 'enrol/synced';
 $string['sync:config'] = 'Peut configurer';
+
+$string['pluginname_desc'] = 'Ce plugin n\'est pas interactif et sert à la spécialisation des inscriptions obtenues par synchronisation
+automatique par des fichiers CSV, ou par des agents d\'alimentation automatisés.';
