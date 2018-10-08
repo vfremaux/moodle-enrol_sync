@@ -15,20 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Sync access plugin version specification.
+ * Sync enrolment plugin settings and presets.
  *
  * @package    enrol_sync
- * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @copyright  2018 Valery Fremaux {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016052300;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2017050500;        // Requires this Moodle version.
-$plugin->component = 'enrol_sync';     // Full name of the plugin (used for diagnostics).
-$plugin->release = '3.5.0 (Build 2016052300)';
-$plugin->maturity   = MATURITY_STABLE;
+if ($ADMIN->fulltree) {
 
-// Non moodle attributes.
-$plugin->codeincrement = '3.5.0000';
+    //--- general settings -----------------------------------------------------------------------------------
+    $settings->add(new admin_setting_heading('enrol_sync_settings', '', get_string('pluginname_desc', 'enrol_sync')));
+
+    $key = 'enrol_sync/canhideshowinstances';
+    $label = get_string('configcanhideshowinstances', 'enrol_sync');
+    $desc = get_string('configcanhideshowinstances_desc', 'enrol_sync');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+}

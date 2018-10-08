@@ -22,6 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// Privacy.
+$string['privacy:metadata'] = "The Sync Enrol do not store any data belonging to users";
+
+$string['configcanhideshowinstances'] = 'Can hide/show instances';
+$string['configcanhideshowinstances_desc'] = 'If set, the people allowed to manage enrol method will be able to hide/show enrol sync instances. An hidden instance will still be synchronized with new changes.';
 $string['pluginname'] = 'Synced access';
 $string['pluginname_desc'] = 'This plugin is not interactive enrol and keeps all user enrolment that were obtained by synced automation.';
 $string['status'] = 'Allow synced access';

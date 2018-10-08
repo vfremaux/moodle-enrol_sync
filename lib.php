@@ -103,7 +103,8 @@ class enrol_sync_plugin extends enrol_plugin {
      * @return bool
      */
     public function can_hide_show_instance($instance) {
-        return false;
+        $config = get_config('enrol_sync');
+        return $config->canhideshowinstances;
     }
 
     /**
