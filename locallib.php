@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
-class enrol_guest_enrol_form extends moodleform {
+class enrol_sync_enrol_form extends moodleform {
     protected $instance;
 
     public function definition() {
