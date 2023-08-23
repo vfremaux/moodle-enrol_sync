@@ -30,8 +30,28 @@ $functions = array(
     'enrol_sync_get_instance_info' => array(
         'classname'   => 'enrol_sync_external',
         'methodname'  => 'get_instance_info',
-        'description' => 'Return sync enrolment instance information.',
+        'classpath'   => 'enrol/sync/externallib.php',
+        'description' => 'Get info about enrol instances',
+        'capabilities'=> 'enrol/sync:config',
         'type'        => 'read',
-        'services'    => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+    ),
+
+    // === enrol related functions ===
+    'enrol_sync_enrol_users' => array(
+        'classname'   => 'enrol_sync_external',
+        'methodname'  => 'enrol_users',
+        'classpath'   => 'enrol/sync/externallib.php',
+        'description' => 'Synced enrol users',
+        'capabilities'=> 'enrol/sync:enrol',
+        'type'        => 'write',
+    ),
+
+    'enrol_sync_unenrol_users' => array(
+        'classname'   => 'enrol_sync_external',
+        'methodname'  => 'unenrol_users',
+        'classpath'   => 'enrol/sync/externallib.php',
+        'description' => 'Sync unenrol users',
+        'capabilities'=> 'enrol/sync:unenrol',
+        'type'        => 'write',
     ),
 );
