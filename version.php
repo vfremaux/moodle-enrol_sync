@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023082333;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023082343;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2022111800;        // Requires this Moodle version.
 $plugin->component = 'enrol_sync';     // Full name of the plugin (used for diagnostics).
-$plugin->release = '4.1.0 (Build 2023082333)';
+$plugin->release = '4.1.0 (Build 2023082343)';
 $plugin->maturity   = MATURITY_STABLE;
 $plugin->supported = [401, 402];
 
