@@ -54,4 +54,13 @@ $functions = array(
         'capabilities'=> 'enrol/sync:unenrol',
         'type'        => 'write',
     ),
+
+    'enrol_sync_get_enrolled_users' => array(
+        'classname'   => 'enrol_sync_external',
+        'methodname'  => 'get_enrolled_users',
+        'classpath'   => 'enrol/sync/externallib.php',
+        'description' => 'Get users enrolled with enrol sync plugin',
+        'capabilities'=> 'enrol/sync:enrol',
+        'type'        => 'write',
+    ),
 );
