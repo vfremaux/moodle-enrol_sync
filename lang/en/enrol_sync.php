@@ -25,6 +25,13 @@
 // Privacy.
 $string['privacy:metadata'] = "The Sync Enrol do not store any data belonging to users";
 
+<<<<<<< HEAD
+=======
+$string['sync:config'] = 'Configure sync enrol instances';
+$string['sync:enrol'] = 'Enrol users';
+$string['sync:unenrol'] = 'Unenrol users from the course';
+
+>>>>>>> MOODLE_401_STABLE
 $string['configcanhideshowinstances'] = 'Can hide/show instances';
 $string['configcanhideshowinstances_desc'] = 'If set, the people allowed to manage enrol method will be able to hide/show enrol sync instances. An hidden instance will still be synchronized with new changes.';
 $string['pluginname'] = 'Synced access';
@@ -34,3 +41,8 @@ $string['status_desc'] = 'Allow temporary synced access by default.';
 $string['status_help'] = 'This setting determines whether a user can access the course when owning a synced enrolment instance.';
 $string['status_link'] = 'enrol/synced';
 $string['sync:config'] = 'Can configure';
+
+$string['wsusercannotassign'] = 'You don\'t have the permission to assign this role ({$a->roleid}) to this user ({$a->userid}) in this course ({$a->courseid}).';
+$string['syncpluginnotinstalled'] = 'The "Sync" plugin has not yet been installed or enabled';
+
+
