@@ -134,7 +134,8 @@ class enrol_sync_external extends external_api {
                                         'suspend' => new external_value(PARAM_INT, 'set to 1 to suspend the enrolment', VALUE_DEFAULT, 0)
                                     )
                             )
-                    )
+                    ),
+                    'shift' => new external_value(PARAM_BOOL, 'If set, will delete previous manual enrolment of the users', VALUE_DEFAULT, 0)
                 )
         );
     }
@@ -146,7 +147,7 @@ class enrol_sync_external extends external_api {
      * @param array $enrolments  An array of user enrolment
      * @since Moodle 2.2
      */
-    public static function enrol_users($enrolments) {
+    public static function enrol_users($enrolments, $shift = false) {
         global $DB, $CFG;
 
         require_once($CFG->libdir . '/enrollib.php');
@@ -192,7 +193,7 @@ class enrol_sync_external extends external_api {
             $enrolment['status'] = (isset($enrolment['suspend']) && !empty($enrolment['suspend'])) ?
                     ENROL_USER_SUSPENDED : ENROL_USER_ACTIVE;
             enrol_sync_plugin::static_enrol_user($course, $enrolment['userid'], $enrolment['roleid'],
-                    $enrolment['timestart'], $enrolment['timeend'], $enrolment['status']);
+                    $enrolment['timestart'], $enrolment['timeend'], $enrolment['status'], $shift);
         }
 
         $transaction->allow_commit();
