@@ -210,14 +210,23 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param int $timestart
      * @param int $timeeend
      * @param bool $status
+     * @param bool $shift If set, will remove previous manual enrolment from the user.
      */
-    static public function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null) {
+    static public function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null, $shift = false) {
         global $DB;
 
         $plugin = enrol_get_plugin('sync');
         $instanceid = $plugin->add_instance($course);
         $instance = $DB->get_record('enrol', array('id' => $instanceid));
         $plugin->enrol_user($instance, $userid, $roleid, $timestart, $timeend, $status, null);
+
+        if ($shift) {
+            $manualplugin = enrol_get_plugin('manual');
+            $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
+            if (!$instance) {
+                $manualplugin->unenrol_user($instance, $userid);
+            }
+        }
     }
 
     /**
