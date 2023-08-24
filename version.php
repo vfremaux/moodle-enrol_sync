@@ -30,7 +30,6 @@ $plugin->component = 'enrol_sync';     // Full name of the plugin (used for diag
 $plugin->release = '4.1.0 (Build 2023082343)';
 $plugin->maturity   = MATURITY_STABLE;
 $plugin->supported = [401, 402];
->>>>>>> MOODLE_401_STABLE
 
 // Non moodle attributes.
 $plugin->codeincrement = '4.1.0000';
