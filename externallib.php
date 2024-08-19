@@ -145,6 +145,7 @@ class enrol_sync_external extends external_api {
      *
      * Function throw an exception at the first error encountered.
      * @param array $enrolments  An array of user enrolment
+     * @param array $shift  If set, will remove previous manual enrolment instances of the users if there is some.
      * @since Moodle 2.2
      */
     public static function enrol_users($enrolments, $shift = false) {
@@ -182,7 +183,7 @@ class enrol_sync_external extends external_api {
                 throw new moodle_exception('wsusercannotassign', 'enrol_sync', '', $errorparams);
             }
 
-            $course = $DB->get_record('course', [id => $enrolment['courseid']]);
+            $course = $DB->get_record('course', ['id' => $enrolment['courseid']]);
             if (!$course) {
                 throw new invalid_parameter_exception('Course id not exist: '.$enrolment['courseid']);
             }
@@ -260,7 +261,7 @@ class enrol_sync_external extends external_api {
                 throw new invalid_parameter_exception('User id not exist: '.$enrolment['userid']);
             }
 
-            $course = $DB->get_record('course', [id => $enrolment['courseid']]);
+            $course = $DB->get_record('course', ['id' => $enrolment['courseid']]);
             if (!$course) {
                 throw new invalid_parameter_exception('Course id not exist: '.$enrolment['courseid']);
             }
@@ -556,5 +557,4 @@ class enrol_sync_external extends external_api {
             )
         );
     }
-
 }

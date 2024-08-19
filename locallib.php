@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Guest access plugin implementation.
+ * Sync enrol plugin implementation.
  *
- * @package    enrol_guest
- * @copyright  2010 Petr Skoda  {@link http://skodak.org}
+ * @package    enrol_sync
+ * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,9 +27,15 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Enrol form
+ */
 class enrol_sync_enrol_form extends moodleform {
     protected $instance;
 
+    /**
+     * Standard for definition.
+     */
     public function definition() {
         $mform = $this->_form;
         $instance = $this->_customdata;
@@ -51,8 +58,12 @@ class enrol_sync_enrol_form extends moodleform {
         $mform->setDefault('instance', $instance->id);
     }
 
+    /**
+     * Standard validation
+     * @param array $data
+     * @param array $files
+     */
     public function validation($data, $files) {
-        global $DB, $CFG;
 
         $errors = parent::validation($data, $files);
         $instance = $this->instance;

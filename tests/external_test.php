@@ -52,7 +52,7 @@ class enrol_guest_external_testcase extends externallib_advanced_testcase {
         $syncplugin = enrol_get_plugin('sync');
         $this->assertNotEmpty($syncplugin);
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
 
         $coursedata = new stdClass();
         $coursedata->visible = 0;
@@ -62,9 +62,10 @@ class enrol_guest_external_testcase extends externallib_advanced_testcase {
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id, 'sync');
 
         // Add enrolment methods for course.
-        $instance = $syncplugin->add_instance($course, array('status' => ENROL_INSTANCE_ENABLED,
-                                                                'name' => 'Test instance',
-                                                                'roleid' => $studentrole->id));
+        $instance = $syncplugin->add_instance($course, [
+            'status' => ENROL_INSTANCE_ENABLED,
+            'name' => 'Test instance',
+            'roleid' => $studentrole->id]);
 
         $this->setAdminUser();
         $result = enrol_guest_external::get_instance_info($instance);
@@ -76,7 +77,7 @@ class enrol_guest_external_testcase extends externallib_advanced_testcase {
         $this->assertEquals('Test instance', $result['instanceinfo']['name']);
         $this->assertTrue($result['instanceinfo']['status']);
 
-        $DB->set_field('enrol', 'status', ENROL_INSTANCE_DISABLED, array('id' => $instance));
+        $DB->set_field('enrol', 'status', ENROL_INSTANCE_DISABLED, ['id' => $instance]);
 
         $result = enrol_guest_external::get_instance_info($instance);
         $result = external_api::clean_returnvalue(enrol_guest_external::get_instance_info_returns(), $result);
@@ -86,7 +87,7 @@ class enrol_guest_external_testcase extends externallib_advanced_testcase {
         $this->assertEquals('Test instance', $result['instanceinfo']['name']);
         $this->assertFalse($result['instanceinfo']['status']);
 
-        $DB->set_field('enrol', 'status', ENROL_INSTANCE_ENABLED, array('id' => $instance));
+        $DB->set_field('enrol', 'status', ENROL_INSTANCE_ENABLED, ['id' => $instance]);
 
         // Try to retrieve information using a normal user for a hidden course.
         $user = self::getDataGenerator()->create_user();
@@ -98,7 +99,7 @@ class enrol_guest_external_testcase extends externallib_advanced_testcase {
         }
 
         // Student user.
-        $DB->set_field('course', 'visible', 1, array('id' => $course->id));
+        $DB->set_field('course', 'visible', 1, ['id' => $course->id]);
         $this->setUser($student);
         $result = enrol_guest_external::get_instance_info($instance);
         $result = external_api::clean_returnvalue(enrol_guest_external::get_instance_info_returns(), $result);

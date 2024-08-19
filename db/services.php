@@ -25,42 +25,42 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
+$functions = [
 
-    'enrol_sync_get_instance_info' => array(
+    'enrol_sync_get_instance_info' => [
         'classname'   => 'enrol_sync_external',
         'methodname'  => 'get_instance_info',
         'classpath'   => 'enrol/sync/externallib.php',
         'description' => 'Get info about enrol instances',
         'capabilities'=> 'enrol/sync:config',
         'type'        => 'read',
-    ),
+    ],
 
     // === enrol related functions ===
-    'enrol_sync_enrol_users' => array(
+    'enrol_sync_enrol_users' => [
         'classname'   => 'enrol_sync_external',
         'methodname'  => 'enrol_users',
         'classpath'   => 'enrol/sync/externallib.php',
         'description' => 'Synced enrol users',
         'capabilities'=> 'enrol/sync:enrol',
         'type'        => 'write',
-    ),
+    ],
 
-    'enrol_sync_unenrol_users' => array(
+    'enrol_sync_unenrol_users' => [
         'classname'   => 'enrol_sync_external',
         'methodname'  => 'unenrol_users',
         'classpath'   => 'enrol/sync/externallib.php',
         'description' => 'Sync unenrol users',
         'capabilities'=> 'enrol/sync:unenrol',
         'type'        => 'write',
-    ),
+    ],
 
-    'enrol_sync_get_enrolled_users' => array(
+    'enrol_sync_get_enrolled_users' => [
         'classname'   => 'enrol_sync_external',
         'methodname'  => 'get_enrolled_users',
         'classpath'   => 'enrol/sync/externallib.php',
         'description' => 'Get users enrolled with enrol sync plugin',
         'capabilities'=> 'enrol/sync:enrol',
         'type'        => 'write',
-    ),
-);
+    ],
+];
