@@ -48,7 +48,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * this plugin is a per course singleton
      *
      * @param StdClass $course
-     * @param array $fields instance fields
+     * @param ?array $fields instance fields
      * @return int id of new instance, null if can not be created
      */
     public function add_instance($course, ?array $fields = null) {
