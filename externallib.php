@@ -344,15 +344,15 @@ class enrol_sync_external extends external_api {
         $params = self::validate_parameters(
             self::get_enrolled_users_parameters(),
             [
-                'courseid'=>$courseid,
-                'options'=>$options,
+                'courseid' => $courseid,
+                'options' => $options,
             ]
         );
         $withcapability = '';
-        $groupid        = 0;
-        $onlyactive     = false;
-        $onlysuspended  = false;
-        $userfields     = [];
+        $groupid = 0;
+        $onlyactive = false;
+        $onlysuspended = false;
+        $userfields = [];
         $limitfrom = 0;
         $limitnumber = 0;
         $sortby = 'us.id';
@@ -425,15 +425,15 @@ class enrol_sync_external extends external_api {
 
         course_require_view_participants($context);
 
-        // to overwrite this parameter, you need role:review capability
+        // To overwrite this parameter, you need role:review capability.
         if ($withcapability) {
             require_capability('moodle/role:review', $coursecontext);
         }
-        // need accessallgroups capability if you want to overwrite this option
+        // Need accessallgroups capability if you want to overwrite this option.
         if (!empty($groupid) && !groups_is_member($groupid)) {
             require_capability('moodle/site:accessallgroups', $coursecontext);
         }
-        // to overwrite this option, you need course:enrolereview permission
+        // To overwrite this option, you need course:enrolereview permission.
         if ($onlyactive || $onlysuspended) {
             require_capability('moodle/course:enrolreview', $coursecontext);
         }

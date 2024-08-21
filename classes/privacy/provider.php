@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Privacy Provider.
+ *
  * @package    enrol_sync
  * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @author  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
@@ -26,6 +28,7 @@ namespace enrol_sync\privacy;
  * Null provider
  */
 class provider implements \core_privacy\local\metadata\null_provider {
+
     /**
      * Get the language string identifier with the component's language
      * file to explain why this plugin stores no data.

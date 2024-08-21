@@ -22,6 +22,7 @@
  * @copyright  2023 Valery Fremaux (https://www.activeprolearn.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace enrol_sync;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -43,6 +44,7 @@ class enrol_guest_external_test extends externallib_advanced_testcase {
 
     /**
      * Test get_instance_info
+     * @covers \enrol_sync_plugin
      */
     public function test_get_instance_info() {
         global $DB;
