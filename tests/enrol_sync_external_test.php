@@ -34,7 +34,8 @@ use external_api;
 
 global $CFG;
 
-require_once($CFG->dirroot . '/webservice/tests/helpers.php');
+require_once($CFG->dirroot.'/webservice/tests/helpers.php');
+require_once($CFG->dirroot.'/enrol/sync/externallib.php');
 
 /**
  * Sync enrolment external functions tests
