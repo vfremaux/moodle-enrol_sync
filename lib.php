@@ -205,7 +205,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param int $userid
      * @param int $roleid
      * @param int $timestart
-     * @param int $timeeend
+     * @param int $timeend
      * @param bool $status
      * @param bool $shift If set, will remove previous manual enrolment from the user.
      */
@@ -231,10 +231,6 @@ class enrol_sync_plugin extends enrol_plugin {
      * Enrols a user from the sync enrol plugin. Deletes the instance if last synced user is unenrolled from course.
      * @param StdClass $course the course record
      * @param int $userid
-     * @param int $roleid
-     * @param int $timestart
-     * @param int $timeeend
-     * @param bool $status
      */
     public static function static_unenrol_user($course, $userid) {
         global $DB;
@@ -256,7 +252,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param int $userid
      * @param bool $status
      * @param int $timestart
-     * @param int $timeeend
+     * @param int $timeend
      */
     public static function static_update_user_enrol($course, $userid, $status = null, $timestart = 0, $timeend = 0) {
         global $DB;
