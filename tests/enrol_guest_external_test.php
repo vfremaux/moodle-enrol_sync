@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Self enrol external PHPunit tests
+ * Sync enrol external PHPunit tests
  *
- * @package   enrol_guest
- * @copyright 2015 Juan Leyva <juan@moodle.com>
+ * @package   enrol_sync
+ * @author  Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright  2023 Valery Fremaux (https://www.activeprolearn.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since     Moodle 3.1
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,11 +34,12 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  *
  * @package    enrol_sync
  * @category   external
- * @copyright  2015 Juan Leyva <juan@moodle.com>
+ * @author  Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright  2023 Valery Fremaux (https://www.activeprolearn.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 3.1
  */
-class enrol_guest_external_testcase extends externallib_advanced_testcase {
+class enrol_guest_external_test extends externallib_advanced_testcase {
 
     /**
      * Test get_instance_info

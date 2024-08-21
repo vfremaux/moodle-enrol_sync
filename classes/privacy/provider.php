@@ -14,6 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package    enrol_sync
+ * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace enrol_sync\privacy;
 
 /**

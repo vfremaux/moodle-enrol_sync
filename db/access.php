@@ -15,10 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for guest access plugin.
+ * Capabilities for sync access plugin.
  *
- * @package    enrol_guest
- * @copyright  2010 Petr Skoda  {@link http://skodak.org}
+ * @package    enrol_sync
+ * @copyright  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

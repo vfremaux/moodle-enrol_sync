@@ -18,8 +18,8 @@
  * Sync access plugin.
  *
  * @package    enrol_sync
- * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
- * @author  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @copyright  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * This plugin does not add any entries into the user_enrolments table,
@@ -51,7 +51,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param array $fields instance fields
      * @return int id of new instance, null if can not be created
      */
-    public function add_instance($course, array $fields = null) {
+    public function add_instance($course, ?array $fields = null) {
         global $DB;
 
         $params = ['enrol' => 'sync', 'courseid' => $course->id];
@@ -209,7 +209,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param bool $status
      * @param bool $shift If set, will remove previous manual enrolment from the user.
      */
-    static public function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null,
+    public static function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null,
                 $shift = false) {
         global $DB;
 
@@ -236,7 +236,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param int $timeeend
      * @param bool $status
      */
-    static public function static_unenrol_user($course, $userid) {
+    public static function static_unenrol_user($course, $userid) {
         global $DB;
 
         $plugin = enrol_get_plugin('sync');
@@ -258,7 +258,7 @@ class enrol_sync_plugin extends enrol_plugin {
      * @param int $timestart
      * @param int $timeeend
      */
-    static public function static_update_user_enrol($course, $userid, $status = null, $timestart = 0, $timeend = 0) {
+    public static function static_update_user_enrol($course, $userid, $status = null, $timestart = 0, $timeend = 0) {
         global $DB;
 
         $plugin = enrol_get_plugin('sync');

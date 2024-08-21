@@ -15,52 +15,52 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Guest enrolment external functions and service definitions.
+ * Sync enrolment external functions and service definitions.
  *
  * @package    enrol_sync
  * @category   external
- * @copyright  2015 Juan Leyva <juan@moodle.com>
+ * @copyright  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.1
  */
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
 
     'enrol_sync_get_instance_info' => [
-        'classname'   => 'enrol_sync_external',
-        'methodname'  => 'get_instance_info',
-        'classpath'   => 'enrol/sync/externallib.php',
+        'classname' => 'enrol_sync_external',
+        'methodname' => 'get_instance_info',
+        'classpath' => 'enrol/sync/externallib.php',
         'description' => 'Get info about enrol instances',
-        'capabilities'=> 'enrol/sync:config',
-        'type'        => 'read',
+        'capabilities' => 'enrol/sync:config',
+        'type' => 'read',
     ],
 
-    // === enrol related functions ===
+    // Enrol related functions.
     'enrol_sync_enrol_users' => [
-        'classname'   => 'enrol_sync_external',
-        'methodname'  => 'enrol_users',
-        'classpath'   => 'enrol/sync/externallib.php',
+        'classname' => 'enrol_sync_external',
+        'methodname' => 'enrol_users',
+        'classpath' => 'enrol/sync/externallib.php',
         'description' => 'Synced enrol users',
-        'capabilities'=> 'enrol/sync:enrol',
-        'type'        => 'write',
+        'capabilities' => 'enrol/sync:enrol',
+        'type' => 'write',
     ],
 
     'enrol_sync_unenrol_users' => [
-        'classname'   => 'enrol_sync_external',
-        'methodname'  => 'unenrol_users',
-        'classpath'   => 'enrol/sync/externallib.php',
+        'classname' => 'enrol_sync_external',
+        'methodname' => 'unenrol_users',
+        'classpath' => 'enrol/sync/externallib.php',
         'description' => 'Sync unenrol users',
-        'capabilities'=> 'enrol/sync:unenrol',
-        'type'        => 'write',
+        'capabilities' => 'enrol/sync:unenrol',
+        'type' => 'write',
     ],
 
     'enrol_sync_get_enrolled_users' => [
-        'classname'   => 'enrol_sync_external',
-        'methodname'  => 'get_enrolled_users',
-        'classpath'   => 'enrol/sync/externallib.php',
+        'classname' => 'enrol_sync_external',
+        'methodname' => 'get_enrolled_users',
+        'classpath' => 'enrol/sync/externallib.php',
         'description' => 'Get users enrolled with enrol sync plugin',
-        'capabilities'=> 'enrol/sync:enrol',
-        'type'        => 'write',
+        'capabilities' => 'enrol/sync:enrol',
+        'type' => 'write',
     ],
 ];
