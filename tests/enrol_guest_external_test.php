@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @author  Valery Fremaux <valery.fremaux@gmail.com>
  * @copyright  2023 Valery Fremaux (https://www.activeprolearn.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.1
  */
 class enrol_guest_external_test extends externallib_advanced_testcase {
 
