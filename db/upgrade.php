@@ -15,17 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the guest enrolment plugin.
+ * This file keeps track of upgrades to the sync enrolment plugin.
  *
  * @package    enrol_sync
+ * @author  2017 Valery Frémaux {@link http://www.mylearningfactory.com}
  * @copyright  2017 Valery Frémaux {@link http://www.mylearningfactory.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Main upgrade sequance
+ * @param int $oldversion
+ */
 function xmldb_enrol_sync_upgrade($oldversion) {
-    global $CFG;
-
     return true;
 }

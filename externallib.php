@@ -20,10 +20,10 @@
  * This api is mostly read only, the actual enrol and unenrol
  * support is in each enrol plugin.
  *
- * @package    enrol_sync
- * @category   external
- * @copyright  2023 Valery Fremaux
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   enrol_sync
+ * @author  Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright  2023 Valery Fremaux (https://www.activeprolearn.com)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -49,8 +49,10 @@ class enrol_sync_external extends external_api {
      */
     public static function get_instance_info_parameters() {
         return new external_function_parameters(
-                array('instanceid' => new external_value(PARAM_INT, 'Instance id of sync enrolment plugin.'))
-            );
+            [
+                'instanceid' => new external_value(PARAM_INT, 'Instance id of sync enrolment plugin.'),
+            ]
+        );
     }
 
     /**
@@ -63,8 +65,8 @@ class enrol_sync_external extends external_api {
     public static function get_instance_info($instanceid) {
         global $DB;
 
-        $params = self::validate_parameters(self::get_instance_info_parameters(), array('instanceid' => $instanceid));
-        $warnings = array();
+        $params = self::validate_parameters(self::get_instance_info_parameters(), ['instanceid' => $instanceid]);
+        $warnings = [];
 
         // Retrieve guest enrolment plugin.
         $enrolplugin = enrol_get_plugin('sync');
@@ -73,11 +75,11 @@ class enrol_sync_external extends external_api {
         }
 
         self::validate_context(context_system::instance());
-        $enrolinstance = $DB->get_record('enrol', array('id' => $params['instanceid']), '*', MUST_EXIST);
+        $enrolinstance = $DB->get_record('enrol', ['id' => $params['instanceid']], '*', MUST_EXIST);
 
-        $course = $DB->get_record('course', array('id' => $enrolinstance->courseid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $enrolinstance->courseid], '*', MUST_EXIST);
         $context = context_course::instance($course->id);
-        if (!$course->visible and !has_capability('moodle/course:viewhiddencourses', $context)) {
+        if (!$course->visible && !has_capability('moodle/course:viewhiddencourses', $context)) {
             throw new moodle_exception('coursehidden');
         }
 
@@ -85,7 +87,7 @@ class enrol_sync_external extends external_api {
 
         unset($instanceinfo->requiredparam);
 
-        $result = array();
+        $result = [];
         $result['instanceinfo'] = $instanceinfo;
         $result['warnings'] = $warnings;
         return $result;
@@ -99,18 +101,18 @@ class enrol_sync_external extends external_api {
      */
     public static function get_instance_info_returns() {
         return new external_single_structure(
-            array(
+            [
                 'instanceinfo' => new external_single_structure(
-                    array(
+                    [
                         'id' => new external_value(PARAM_INT, 'Id of course enrolment instance'),
                         'courseid' => new external_value(PARAM_INT, 'Id of course'),
                         'type' => new external_value(PARAM_PLUGIN, 'Type of enrolment plugin'),
                         'name' => new external_value(PARAM_RAW, 'Name of enrolment plugin'),
                         'status' => new external_value(PARAM_BOOL, 'Is the enrolment enabled?'),
-                    )
+                    ]
                 ),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -122,21 +124,22 @@ class enrol_sync_external extends external_api {
      */
     public static function enrol_users_parameters() {
         return new external_function_parameters(
-                array(
-                    'enrolments' => new external_multiple_structure(
-                            new external_single_structure(
-                                    array(
-                                        'roleid' => new external_value(PARAM_INT, 'Role to assign to the user'),
-                                        'userid' => new external_value(PARAM_INT, 'The user that is going to be enrolled'),
-                                        'courseid' => new external_value(PARAM_INT, 'The course to enrol the user role in'),
-                                        'timestart' => new external_value(PARAM_INT, 'Timestamp when the enrolment start', VALUE_DEFAULT, 0),
-                                        'timeend' => new external_value(PARAM_INT, 'Timestamp when the enrolment end', VALUE_DEFAULT, 0),
-                                        'suspend' => new external_value(PARAM_INT, 'set to 1 to suspend the enrolment', VALUE_DEFAULT, 0)
-                                    )
-                            )
-                    ),
-                    'shift' => new external_value(PARAM_BOOL, 'If set, will delete previous manual enrolment of the users', VALUE_DEFAULT, 0)
-                )
+            [
+                'enrolments' => new external_multiple_structure(
+                    new external_single_structure(
+                        [
+                            'roleid' => new external_value(PARAM_INT, 'Role to assign to the user'),
+                            'userid' => new external_value(PARAM_INT, 'The user that is going to be enrolled'),
+                            'courseid' => new external_value(PARAM_INT, 'The course to enrol the user role in'),
+                            'timestart' => new external_value(PARAM_INT, 'Timestamp when the enrolment start', VALUE_DEFAULT, 0),
+                            'timeend' => new external_value(PARAM_INT, 'Timestamp when the enrolment end', VALUE_DEFAULT, 0),
+                            'suspend' => new external_value(PARAM_INT, 'set to 1 to suspend the enrolment', VALUE_DEFAULT, 0),
+                        ]
+                    )
+                ),
+                'shift' => new external_value(PARAM_BOOL, 'If set, will delete previous manual enrolment of the users',
+                        VALUE_DEFAULT, 0),
+            ]
         );
     }
 
@@ -145,6 +148,7 @@ class enrol_sync_external extends external_api {
      *
      * Function throw an exception at the first error encountered.
      * @param array $enrolments  An array of user enrolment
+     * @param array $shift  If set, will remove previous manual enrolment instances of the users if there is some.
      * @since Moodle 2.2
      */
     public static function enrol_users($enrolments, $shift = false) {
@@ -153,10 +157,13 @@ class enrol_sync_external extends external_api {
         require_once($CFG->libdir . '/enrollib.php');
 
         $params = self::validate_parameters(self::enrol_users_parameters(),
-                array('enrolments' => $enrolments));
+                ['enrolments' => $enrolments]);
 
-        $transaction = $DB->start_delegated_transaction(); // Rollback all enrolment if an error occurs
-                                                           // (except if the DB doesn't support it).
+        /*
+         *Rollback all enrolment if an error occurs
+         * (except if the DB doesn't support it).
+         */
+        $transaction = $DB->start_delegated_transaction();
 
         // Retrieve the sync enrolment plugin.
         $enrol = enrol_get_plugin('sync');
@@ -182,7 +189,7 @@ class enrol_sync_external extends external_api {
                 throw new moodle_exception('wsusercannotassign', 'enrol_sync', '', $errorparams);
             }
 
-            $course = $DB->get_record('course', [id => $enrolment['courseid']]);
+            $course = $DB->get_record('course', ['id' => $enrolment['courseid']]);
             if (!$course) {
                 throw new invalid_parameter_exception('Course id not exist: '.$enrolment['courseid']);
             }
@@ -203,7 +210,6 @@ class enrol_sync_external extends external_api {
      * Returns description of method result value.
      *
      * @return null
-     * @since Moodle 2.2
      */
     public static function enrol_users_returns() {
         return null;
@@ -215,17 +221,17 @@ class enrol_sync_external extends external_api {
      * @return external_function_parameters
      */
     public static function unenrol_users_parameters() {
-        return new external_function_parameters(array(
-            'enrolments' => new external_multiple_structure(
-                new external_single_structure(
-                    array(
+        return new external_function_parameters(
+            [
+                'enrolments' => new external_multiple_structure(new external_single_structure(
+                    [
                         'userid' => new external_value(PARAM_INT, 'The user that is going to be unenrolled'),
                         'courseid' => new external_value(PARAM_INT, 'The course to unenrol the user from'),
                         'roleid' => new external_value(PARAM_INT, 'The user role', VALUE_OPTIONAL),
-                    )
-                )
-            )
-        ));
+                    ]
+                ),
+            )]
+        );
     }
 
     /**
@@ -242,7 +248,7 @@ class enrol_sync_external extends external_api {
     public static function unenrol_users($enrolments) {
         global $CFG, $DB;
 
-        $params = self::validate_parameters(self::unenrol_users_parameters(), array('enrolments' => $enrolments));
+        $params = self::validate_parameters(self::unenrol_users_parameters(), ['enrolments' => $enrolments]);
         require_once($CFG->libdir . '/enrollib.php');
         $transaction = $DB->start_delegated_transaction(); // Rollback all enrolment if an error occurs.
         $enrol = enrol_get_plugin('manual');
@@ -255,12 +261,12 @@ class enrol_sync_external extends external_api {
             self::validate_context($context);
             require_capability('enrol/sync:unenrol', $context);
 
-            $user = $DB->get_record('user', array('id' => $enrolment['userid']));
+            $user = $DB->get_record('user', ['id' => $enrolment['userid']]);
             if (!$user) {
                 throw new invalid_parameter_exception('User id not exist: '.$enrolment['userid']);
             }
 
-            $course = $DB->get_record('course', [id => $enrolment['courseid']]);
+            $course = $DB->get_record('course', ['id' => $enrolment['courseid']]);
             if (!$course) {
                 throw new invalid_parameter_exception('Course id not exist: '.$enrolment['courseid']);
             }
@@ -292,10 +298,11 @@ class enrol_sync_external extends external_api {
                     new external_single_structure(
                         [
                             'name'  => new external_value(PARAM_ALPHANUMEXT, 'option name'),
-                            'value' => new external_value(PARAM_RAW, 'option value')
+                            'value' => new external_value(PARAM_RAW, 'option value'),
                         ]
                     ), 'Option names:
-                            * withcapability (string) return only users with this capability. This option requires \'moodle/role:review\' on the course context.
+                            * withcapability (string) return only users with this capability. This option requires
+                                    \'moodle/role:review\' on the course context.
                             * groupid (integer) return only users in this group id. If the course has groups enabled and this param
                                                 isn\'t defined, returns all the viewable users.
                                                 This option requires \'moodle/site:accessallgroups\' on the course context if the
@@ -318,9 +325,9 @@ class enrol_sync_external extends external_api {
     }
 
     /**
-     * Unenrolment of users.
+     * Get enrolled users on sync.
      *
-     * @param array $enrolments an array of course user and role ids
+     * @param $courseid
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -328,7 +335,7 @@ class enrol_sync_external extends external_api {
      * @throws required_capability_exception
      * @throws restricted_context_exception
      */
-    public static function get_enrolled_users($enrolments) {
+    public static function get_enrolled_users($courseid, $options) {
         global $CFG, $USER, $DB;
 
         require_once($CFG->dirroot . '/course/lib.php');
@@ -337,15 +344,15 @@ class enrol_sync_external extends external_api {
         $params = self::validate_parameters(
             self::get_enrolled_users_parameters(),
             [
-                'courseid'=>$courseid,
-                'options'=>$options
+                'courseid' => $courseid,
+                'options' => $options,
             ]
         );
         $withcapability = '';
-        $groupid        = 0;
-        $onlyactive     = false;
-        $onlysuspended  = false;
-        $userfields     = [];
+        $groupid = 0;
+        $onlyactive = false;
+        $onlysuspended = false;
+        $userfields = [];
         $limitfrom = 0;
         $limitnumber = 0;
         $sortby = 'us.id';
@@ -418,15 +425,15 @@ class enrol_sync_external extends external_api {
 
         course_require_view_participants($context);
 
-        // to overwrite this parameter, you need role:review capability
+        // To overwrite this parameter, you need role:review capability.
         if ($withcapability) {
             require_capability('moodle/role:review', $coursecontext);
         }
-        // need accessallgroups capability if you want to overwrite this option
+        // Need accessallgroups capability if you want to overwrite this option.
         if (!empty($groupid) && !groups_is_member($groupid)) {
             require_capability('moodle/site:accessallgroups', $coursecontext);
         }
-        // to overwrite this option, you need course:enrolereview permission
+        // To overwrite this option, you need course:enrolereview permission.
         if ($onlyactive || $onlysuspended) {
             require_capability('moodle/course:enrolreview', $coursecontext);
         }
@@ -436,7 +443,7 @@ class enrol_sync_external extends external_api {
 
         list($enrolledsql, $enrolledparams) = get_enrolled_sql($coursecontext, $withcapability, $groupid, $onlyactive,
         $onlysuspended, $syncenrolid);
-        $ctxselect = ', ' . context_helper::get_preload_record_columns_sql('ctx');
+        $ctxselect = ', '.context_helper::get_preload_record_columns_sql('ctx');
         $ctxjoin = "LEFT JOIN {context} ctx ON (ctx.instanceid = u.id AND ctx.contextlevel = :contextlevel)";
         $enrolledparams['contextlevel'] = CONTEXT_USER;
 
@@ -454,15 +461,29 @@ class enrol_sync_external extends external_api {
                 return [];
             }
         }
-        $sql = "SELECT us.*, COALESCE(ul.timeaccess, 0) AS lastcourseaccess
-                  FROM {user} us
-                  JOIN (
-                      SELECT DISTINCT u.id $ctxselect
-                        FROM {user} u $ctxjoin $groupjoin
-                       WHERE u.id IN ($enrolledsql)
-                  ) q ON q.id = us.id
-             LEFT JOIN {user_lastaccess} ul ON (ul.userid = us.id AND ul.courseid = :courseid)
-                ORDER BY $sortby $sortdirection";
+        $sql = "
+            SELECT
+                us.*, COALESCE(ul.timeaccess, 0) AS lastcourseaccess
+            FROM
+                {user} us
+            JOIN (
+                SELECT
+                    DISTINCT u.id $ctxselect
+                FROM
+                    {user} u $ctxjoin $groupjoin
+                WHERE
+                    u.id IN ($enrolledsql)
+                  ) q
+             ON
+                q.id = us.id
+             LEFT JOIN
+                {user_lastaccess} ul
+             ON
+                (ul.userid = us.id AND
+                ul.courseid = :courseid)
+             ORDER BY
+                $sortby $sortdirection
+        ";
         $enrolledparams = array_merge($enrolledparams, $sortparams);
         $enrolledparams['courseid'] = $courseid;
 
@@ -470,7 +491,7 @@ class enrol_sync_external extends external_api {
         $users = [];
         foreach ($enrolledusers as $user) {
             context_helper::preload_from_record($user);
-            if ($userdetails = user_get_user_details($user, $course, $userfields)) {
+            if ($userdetails = enrol_sync_plugin::get_user_roles_in_course($user, $course, $userfields)) {
                 $users[] = $userdetails;
             }
         }
@@ -488,41 +509,49 @@ class enrol_sync_external extends external_api {
         return new external_multiple_structure(
             new external_single_structure(
                 [
-                    'id'    => new external_value(PARAM_INT, 'ID of the user'),
-                    'username'    => new external_value(PARAM_RAW, 'Username policy is defined in Moodle security config', VALUE_OPTIONAL),
-                    'firstname'   => new external_value(PARAM_NOTAGS, 'The first name(s) of the user', VALUE_OPTIONAL),
-                    'lastname'    => new external_value(PARAM_NOTAGS, 'The family name of the user', VALUE_OPTIONAL),
-                    'fullname'    => new external_value(PARAM_NOTAGS, 'The fullname of the user'),
-                    'email'       => new external_value(PARAM_TEXT, 'An email address - allow email as root@localhost', VALUE_OPTIONAL),
-                    'address'     => new external_value(PARAM_TEXT, 'Postal address', VALUE_OPTIONAL),
-                    'phone1'      => new external_value(PARAM_NOTAGS, 'Phone 1', VALUE_OPTIONAL),
-                    'phone2'      => new external_value(PARAM_NOTAGS, 'Phone 2', VALUE_OPTIONAL),
-                    'department'  => new external_value(PARAM_TEXT, 'department', VALUE_OPTIONAL),
+                    'id' => new external_value(PARAM_INT, 'ID of the user'),
+                    'username' => new external_value(PARAM_RAW, 'Username policy is defined in Moodle security config',
+                            VALUE_OPTIONAL),
+                    'firstname' => new external_value(PARAM_NOTAGS, 'The first name(s) of the user', VALUE_OPTIONAL),
+                    'lastname' => new external_value(PARAM_NOTAGS, 'The family name of the user', VALUE_OPTIONAL),
+                    'fullname' => new external_value(PARAM_NOTAGS, 'The fullname of the user'),
+                    'email' => new external_value(PARAM_TEXT, 'An email address - allow email as root@localhost',
+                            VALUE_OPTIONAL),
+                    'address' => new external_value(PARAM_TEXT, 'Postal address', VALUE_OPTIONAL),
+                    'phone1' => new external_value(PARAM_NOTAGS, 'Phone 1', VALUE_OPTIONAL),
+                    'phone2' => new external_value(PARAM_NOTAGS, 'Phone 2', VALUE_OPTIONAL),
+                    'department' => new external_value(PARAM_TEXT, 'department', VALUE_OPTIONAL),
                     'institution' => new external_value(PARAM_TEXT, 'institution', VALUE_OPTIONAL),
-                    'idnumber'    => new external_value(PARAM_RAW, 'An arbitrary ID code number perhaps from the institution', VALUE_OPTIONAL),
-                    'interests'   => new external_value(PARAM_TEXT, 'user interests (separated by commas)', VALUE_OPTIONAL),
+                    'idnumber' => new external_value(PARAM_RAW, 'An arbitrary ID code number perhaps from the institution',
+                            VALUE_OPTIONAL),
+                    'interests' => new external_value(PARAM_TEXT, 'user interests (separated by commas)', VALUE_OPTIONAL),
                     'firstaccess' => new external_value(PARAM_INT, 'first access to the site (0 if never)', VALUE_OPTIONAL),
-                    'lastaccess'  => new external_value(PARAM_INT, 'last access to the site (0 if never)', VALUE_OPTIONAL),
-                    'lastcourseaccess'  => new external_value(PARAM_INT, 'last access to the course (0 if never)', VALUE_OPTIONAL),
+                    'lastaccess' => new external_value(PARAM_INT, 'last access to the site (0 if never)', VALUE_OPTIONAL),
+                    'lastcourseaccess' => new external_value(PARAM_INT, 'last access to the course (0 if never)',
+                            VALUE_OPTIONAL),
                     'description' => new external_value(PARAM_RAW, 'User profile description', VALUE_OPTIONAL),
                     'descriptionformat' => new external_format_value('description', VALUE_OPTIONAL),
-                    'city'        => new external_value(PARAM_NOTAGS, 'Home city of the user', VALUE_OPTIONAL),
-                    'country'     => new external_value(PARAM_ALPHA, 'Home country code of the user, such as AU or CZ', VALUE_OPTIONAL),
-                    'profileimageurlsmall' => new external_value(PARAM_URL, 'User image profile URL - small version', VALUE_OPTIONAL),
+                    'city' => new external_value(PARAM_NOTAGS, 'Home city of the user', VALUE_OPTIONAL),
+                    'country' => new external_value(PARAM_ALPHA, 'Home country code of the user, such as AU or CZ',
+                            VALUE_OPTIONAL),
+                    'profileimageurlsmall' => new external_value(PARAM_URL, 'User image profile URL - small version',
+                            VALUE_OPTIONAL),
                     'profileimageurl' => new external_value(PARAM_URL, 'User image profile URL - big version', VALUE_OPTIONAL),
                     'customfields' => new external_multiple_structure(
                         new external_single_structure(
                             [
-                                'type'  => new external_value(PARAM_ALPHANUMEXT, 'The type of the custom field - text field, checkbox...'),
+                                'type' => new external_value(PARAM_ALPHANUMEXT, 'The type of the custom field - text field,
+                                        checkbox...'),
                                 'value' => new external_value(PARAM_RAW, 'The value of the custom field'),
                                 'name' => new external_value(PARAM_RAW, 'The name of the custom field'),
-                                'shortname' => new external_value(PARAM_RAW, 'The shortname of the custom field - to be able to build the field class in the code'),
+                                'shortname' => new external_value(PARAM_RAW, 'The shortname of the custom field - to be able to
+                                        build the field class in the code'),
                             ]
                         ), 'User custom fields (also known as user profil fields)', VALUE_OPTIONAL),
                     'groups' => new external_multiple_structure(
                         new external_single_structure(
                             [
-                                'id'  => new external_value(PARAM_INT, 'group id'),
+                                'id' => new external_value(PARAM_INT, 'group id'),
                                 'name' => new external_value(PARAM_RAW, 'group name'),
                                 'description' => new external_value(PARAM_RAW, 'group description'),
                                 'descriptionformat' => new external_format_value('description'),
@@ -531,30 +560,29 @@ class enrol_sync_external extends external_api {
                     'roles' => new external_multiple_structure(
                         new external_single_structure(
                             [
-                                'roleid'       => new external_value(PARAM_INT, 'role id'),
-                                'name'         => new external_value(PARAM_RAW, 'role name'),
-                                'shortname'    => new external_value(PARAM_ALPHANUMEXT, 'role shortname'),
-                                'sortorder'    => new external_value(PARAM_INT, 'role sortorder')
+                                'roleid' => new external_value(PARAM_INT, 'role id'),
+                                'name' => new external_value(PARAM_RAW, 'role name'),
+                                'shortname' => new external_value(PARAM_ALPHANUMEXT, 'role shortname'),
+                                'sortorder' => new external_value(PARAM_INT, 'role sortorder'),
                             ]
                         ), 'user roles', VALUE_OPTIONAL),
                     'preferences' => new external_multiple_structure(
                         new external_single_structure(
                             [
-                                'name'  => new external_value(PARAM_RAW, 'The name of the preferences'),
+                                'name' => new external_value(PARAM_RAW, 'The name of the preferences'),
                                 'value' => new external_value(PARAM_RAW, 'The value of the custom field'),
                             ]
                     ), 'User preferences', VALUE_OPTIONAL),
                     'enrolledcourses' => new external_multiple_structure(
                         new external_single_structure(
                             [
-                                'id'  => new external_value(PARAM_INT, 'Id of the course'),
+                                'id' => new external_value(PARAM_INT, 'Id of the course'),
                                 'fullname' => new external_value(PARAM_RAW, 'Fullname of the course'),
-                                'shortname' => new external_value(PARAM_RAW, 'Shortname of the course')
+                                'shortname' => new external_value(PARAM_RAW, 'Shortname of the course'),
                             ]
-                    ), 'Courses where the user is enrolled - limited by which courses the user is able to see', VALUE_OPTIONAL)
+                    ), 'Courses where the user is enrolled - limited by which courses the user is able to see', VALUE_OPTIONAL),
                 ]
             )
         );
     }
-
 }

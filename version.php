@@ -17,17 +17,18 @@
 /**
  * Sync access plugin version specification.
  *
- * @package    enrol_sync
- * @copyright  2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     enrol_sync
+ * @copyright   2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author      2017 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023082343;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023082353;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2022111800;        // Requires this Moodle version.
 $plugin->component = 'enrol_sync';     // Full name of the plugin (used for diagnostics).
-$plugin->release = '4.1.0 (Build 2023082343)';
+$plugin->release = '4.1.0 (Build 2023082353)';
 $plugin->maturity   = MATURITY_STABLE;
 $plugin->supported = [401, 402];
 

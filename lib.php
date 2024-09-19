@@ -17,15 +17,14 @@
 /**
  * Sync access plugin.
  *
+ * @package    enrol_sync
+ * @copyright  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @author  2013 Valery Fremaux  {@link http://www.mylearningfactory.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  * This plugin does not add any entries into the user_enrolments table,
  * the access control is granted on the fly via the tricks in require_login().
- *
- * @package    enrol_guest
- * @copyright  2010 Petr Skoda  {@link http://skodak.org}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class enrol_sync_plugin
@@ -41,7 +40,6 @@ class enrol_sync_plugin extends enrol_plugin {
      * @return boolean
      */
     public function can_add_instance($courseid) {
-
         return false;
     }
 
@@ -49,21 +47,21 @@ class enrol_sync_plugin extends enrol_plugin {
      * Add new instance of enrol plugin.
      * this plugin is a per course singleton
      *
-     * @param object $course
-     * @param array instance fields
+     * @param StdClass $course
+     * @param ?array $fields instance fields
      * @return int id of new instance, null if can not be created
      */
-    public function add_instance($course, array $fields = null) {
+    public function add_instance($course, ?array $fields = null) {
         global $DB;
 
-        $params = array('enrol' => 'sync', 'courseid' => $course->id);
+        $params = ['enrol' => 'sync', 'courseid' => $course->id];
         if ($instance = $DB->get_record('enrol', $params)) {
             $instance->status = 0;
             $DB->update_record('enrol', $instance);
             return $instance->id;
         }
 
-        $fields = (array)$fields;
+        $fields = (array) $fields;
         return parent::add_instance($course, $fields);
     }
 
@@ -78,7 +76,7 @@ class enrol_sync_plugin extends enrol_plugin {
     public function restore_instance(restore_enrolments_structure_step $step, stdClass $data, $course, $oldid) {
         global $DB;
 
-        if (!$DB->record_exists('enrol', array('courseid' => $data->courseid, 'enrol' => $this->get_name()))) {
+        if (!$DB->record_exists('enrol', ['courseid' => $data->courseid, 'enrol' => $this->get_name()])) {
             $this->add_instance($course, (array)$data);
         }
 
@@ -89,7 +87,7 @@ class enrol_sync_plugin extends enrol_plugin {
     /**
      * Instances will auto delete when the last synced encolled user has gone away.
      *
-     * @param object $instance
+     * @param StdClass $instance
      * @return bool
      */
     public function can_delete_instance($instance) {
@@ -133,8 +131,10 @@ class enrol_sync_plugin extends enrol_plugin {
      * @return array
      */
     protected function get_status_options() {
-        $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
-                         ENROL_INSTANCE_DISABLED => get_string('no'));
+        $options = [
+            ENROL_INSTANCE_ENABLED  => get_string('yes'),
+            ENROL_INSTANCE_DISABLED => get_string('no'),
+        ];
         return $options;
     }
 
@@ -147,14 +147,11 @@ class enrol_sync_plugin extends enrol_plugin {
      * @return bool
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
-        global $CFG;
-
         $options = $this->get_status_options();
-        $mform->addElement('select', 'status', get_string('status', 'enrol_guest'), $options);
-        $mform->addHelpButton('status', 'status', 'enrol_guest');
+        $mform->addElement('select', 'status', get_string('status', 'enrol_sync'), $options);
+        $mform->addHelpButton('status', 'status', 'enrol_sync');
         $mform->setDefault('status', $this->get_config('status'));
         $mform->setAdvanced('status', $this->get_config('status_adv'));
-
     }
 
     /**
@@ -178,12 +175,12 @@ class enrol_sync_plugin extends enrol_plugin {
      * @return void
      */
     public function edit_instance_validation($data, $files, $instance, $context) {
-        $errors = array();
+        $errors = [];
 
         $validstatus = array_keys($this->get_status_options());
-        $tovalidate = array(
-            'status' => $validstatus
-        );
+        $tovalidate = [
+            'status' => $validstatus,
+        ];
         $typeerrors = $this->validate_param_types($data, $tovalidate);
         $errors = array_merge($errors, $typeerrors);
 
@@ -192,38 +189,39 @@ class enrol_sync_plugin extends enrol_plugin {
 
     /**
      * Tells if we have some users enrolled in this instance.
-     * @param object $instance
+     * @param StdClass $instance
      * @return the number of enrolled users in this instance.
      */
     protected function has_enrolled_users($instance) {
         global $DB;
 
-        $params = array('enrolid' => $instance->id);
+        $params = ['enrolid' => $instance->id];
         return $DB->count_records('user_enrolments', $params);
     }
 
     /**
      * Enrols a user ensuring a sync enrol plugin instance is present in the course.
-     * @param object $course the course record
+     * @param StdClass $course the course record
      * @param int $userid
      * @param int $roleid
      * @param int $timestart
-     * @param int $timeeend
+     * @param int $timeend
      * @param bool $status
      * @param bool $shift If set, will remove previous manual enrolment from the user.
      */
-    static public function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null, $shift = false) {
+    public static function static_enrol_user($course, $userid, $roleid, $timestart = 0, $timeend = 0, $status = null,
+                $shift = false) {
         global $DB;
 
         $plugin = enrol_get_plugin('sync');
         $instanceid = $plugin->add_instance($course);
-        $instance = $DB->get_record('enrol', array('id' => $instanceid));
+        $instance = $DB->get_record('enrol', ['id' => $instanceid]);
         $plugin->enrol_user($instance, $userid, $roleid, $timestart, $timeend, $status, null);
 
         if ($shift) {
             $manualplugin = enrol_get_plugin('manual');
             $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
-            if (!$instance) {
+            if ($instance) {
                 $manualplugin->unenrol_user($instance, $userid);
             }
         }
@@ -231,23 +229,92 @@ class enrol_sync_plugin extends enrol_plugin {
 
     /**
      * Enrols a user from the sync enrol plugin. Deletes the instance if last synced user is unenrolled from course.
-     * @param object $course the course record
+     * @param StdClass $course the course record
      * @param int $userid
-     * @param int $roleid
-     * @param int $timestart
-     * @param int $timeeend
-     * @param bool $status
      */
-    static public function static_unenrol_user($course, $userid) {
+    public static function static_unenrol_user($course, $userid) {
         global $DB;
 
         $plugin = enrol_get_plugin('sync');
         $instanceid = $plugin->add_instance($course);
-        $instance = $DB->get_record('enrol', array('id' => $instanceid));
+        $instance = $DB->get_record('enrol', ['id' => $instanceid]);
         $plugin->unenrol_user($instance, $userid);
 
         if (!$plugin->has_enrolled_users($instance)) {
             $plugin->delete_instance($instance);
         }
+    }
+
+    /**
+     * Enrols a user ensuring a sync enrol plugin instance is present in the course. Parameters have been reordrered
+     * to respect enrollib.php core library.
+     * @param StdClass $course the course record
+     * @param int $userid
+     * @param bool $status
+     * @param int $timestart
+     * @param int $timeend
+     */
+    public static function static_update_user_enrol($course, $userid, $status = null, $timestart = 0, $timeend = 0) {
+        global $DB;
+
+        $plugin = enrol_get_plugin('sync');
+        $instanceid = $plugin->add_instance($course); // Implicit singleton.
+        $instance = $DB->get_record('enrol', ['id' => $instanceid]);
+        $plugin->update_user_enrol($instance, $userid, $status, $timestart, $timeend);
+    }
+
+    /**
+     * @see lib/accesslib.php§get_user_roles_in_course
+     * This function is used to print roles column in user profile page.
+     * It is using the CFG->profileroles to limit the list to only interesting roles.
+     * (The permission tab has full details of user role assignments.)
+     * Restrict to enrol_sync component the roles query and returns the array of roles
+     * rather than a string list of role names
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @return array array of role records
+     */
+    public static function get_user_roles_in_course($userid, $courseid) {
+        global $CFG, $DB;
+        if ($courseid == SITEID) {
+            $context = context_system::instance();
+        } else {
+            $context = context_course::instance($courseid);
+        }
+        // If the current user can assign roles, then they can see all roles on the profile and participants page,
+        // provided the roles are assigned to at least 1 user in the context. If not, only the policy-defined roles.
+        if (has_capability('moodle/role:assign', $context)) {
+            $rolesinscope = array_keys(get_all_roles($context));
+        } else {
+            $rolesinscope = empty($CFG->profileroles) ? [] : array_map('trim', explode(',', $CFG->profileroles));
+        }
+        if (empty($rolesinscope)) {
+            return '';
+        }
+
+        list($rallowed, $params) = $DB->get_in_or_equal($rolesinscope, SQL_PARAMS_NAMED, 'a');
+        list($contextlist, $cparams) = $DB->get_in_or_equal($context->get_parent_context_ids(true), SQL_PARAMS_NAMED, 'p');
+        $params = array_merge($params, $cparams);
+
+        if ($coursecontext = $context->get_course_context(false)) {
+            $params['coursecontext'] = $coursecontext->id;
+        } else {
+            $params['coursecontext'] = 0;
+        }
+
+        $sql = "SELECT DISTINCT r.id, r.name, r.shortname, r.sortorder, rn.name AS coursealias
+                  FROM {role_assignments} ra, {role} r
+             LEFT JOIN {role_names} rn ON (rn.contextid = :coursecontext AND rn.roleid = r.id)
+                 WHERE r.id = ra.roleid
+                       AND ra.contextid $contextlist
+                       AND r.id $rallowed
+                       AND ra.userid = :userid
+                       AND component = 'enrol_sync'
+              ORDER BY r.sortorder ASC";
+        $params['userid'] = $userid;
+
+        $roles = $DB->get_records_sql($sql, $params);
+        return $roles;
     }
 }
