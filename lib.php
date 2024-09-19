@@ -264,13 +264,13 @@ class enrol_sync_plugin extends enrol_plugin {
     }
 
     /**
-     * @see lib/accesslib.php§get_user_roles_in_course
      * This function is used to print roles column in user profile page.
      * It is using the CFG->profileroles to limit the list to only interesting roles.
      * (The permission tab has full details of user role assignments.)
      * Restrict to enrol_sync component the roles query and returns the array of roles
      * rather than a string list of role names
      *
+     * @see lib/accesslib.php§get_user_roles_in_course
      * @param int $userid
      * @param int $courseid
      * @return array array of role records
@@ -282,8 +282,10 @@ class enrol_sync_plugin extends enrol_plugin {
         } else {
             $context = context_course::instance($courseid);
         }
-        // If the current user can assign roles, then they can see all roles on the profile and participants page,
-        // provided the roles are assigned to at least 1 user in the context. If not, only the policy-defined roles.
+        /*
+         * If the current user can assign roles, then they can see all roles on the profile and participants page,
+         * provided the roles are assigned to at least 1 user in the context. If not, only the policy-defined roles.
+         */
         if (has_capability('moodle/role:assign', $context)) {
             $rolesinscope = array_keys(get_all_roles($context));
         } else {
