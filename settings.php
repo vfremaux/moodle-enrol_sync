@@ -17,21 +17,21 @@
 /**
  * Sync enrolment plugin settings and presets.
  *
- * @package    enrol_sync
- * @copyright  2018 Valery Fremaux {@link http://www.mylearningfactory.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     enrol_sync
+ * @author      2017 Valery Fremaux {@link http://www.mylearningfactory.com}
+ * @copyright   2017 Valery Fremaux {@link http://www.mylearningfactory.com}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
 
-    //--- general settings -----------------------------------------------------------------------------------
+    // General settings.
     $settings->add(new admin_setting_heading('enrol_sync_settings', '', get_string('pluginname_desc', 'enrol_sync')));
 
     $key = 'enrol_sync/canhideshowinstances';
     $label = get_string('configcanhideshowinstances', 'enrol_sync');
     $desc = get_string('configcanhideshowinstances_desc', 'enrol_sync');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
-
 }
