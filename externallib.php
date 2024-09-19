@@ -325,9 +325,9 @@ class enrol_sync_external extends external_api {
     }
 
     /**
-     * Unenrolment of users.
+     * Get enrolled users on sync.
      *
-     * @param array $enrolments an array of course user and role ids
+     * @param $courseid
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -335,7 +335,7 @@ class enrol_sync_external extends external_api {
      * @throws required_capability_exception
      * @throws restricted_context_exception
      */
-    public static function get_enrolled_users($enrolments) {
+    public static function get_enrolled_users($courseid, $options) {
         global $CFG, $USER, $DB;
 
         require_once($CFG->dirroot . '/course/lib.php');
@@ -491,7 +491,7 @@ class enrol_sync_external extends external_api {
         $users = [];
         foreach ($enrolledusers as $user) {
             context_helper::preload_from_record($user);
-            if ($userdetails = user_get_user_details($user, $course, $userfields)) {
+            if ($userdetails = enrol_sync_plugin::get_user_roles_in_course($user, $course, $userfields)) {
                 $users[] = $userdetails;
             }
         }

@@ -32,7 +32,7 @@ require_once("$CFG->libdir/formslib.php");
  */
 class enrol_sync_enrol_form extends moodleform {
 
-    /** @var the enrol method indtance */
+    /** @var the enrol method instance */
     protected $instance;
 
     /**

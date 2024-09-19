@@ -148,8 +148,8 @@ class enrol_sync_plugin extends enrol_plugin {
      */
     public function edit_instance_form($instance, MoodleQuickForm $mform, $context) {
         $options = $this->get_status_options();
-        $mform->addElement('select', 'status', get_string('status', 'enrol_guest'), $options);
-        $mform->addHelpButton('status', 'status', 'enrol_guest');
+        $mform->addElement('select', 'status', get_string('status', 'enrol_sync'), $options);
+        $mform->addHelpButton('status', 'status', 'enrol_sync');
         $mform->setDefault('status', $this->get_config('status'));
         $mform->setAdvanced('status', $this->get_config('status_adv'));
     }
@@ -221,7 +221,7 @@ class enrol_sync_plugin extends enrol_plugin {
         if ($shift) {
             $manualplugin = enrol_get_plugin('manual');
             $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
-            if (!$instance) {
+            if ($instance) {
                 $manualplugin->unenrol_user($instance, $userid);
             }
         }
@@ -260,6 +260,61 @@ class enrol_sync_plugin extends enrol_plugin {
         $plugin = enrol_get_plugin('sync');
         $instanceid = $plugin->add_instance($course); // Implicit singleton.
         $instance = $DB->get_record('enrol', ['id' => $instanceid]);
-        $plugin->update_user_enrol($instance, $userid, $status, $timestart, $timeend, );
+        $plugin->update_user_enrol($instance, $userid, $status, $timestart, $timeend);
+    }
+
+    /**
+     * @see lib/accesslib.php§get_user_roles_in_course
+     * This function is used to print roles column in user profile page.
+     * It is using the CFG->profileroles to limit the list to only interesting roles.
+     * (The permission tab has full details of user role assignments.)
+     * Restrict to enrol_sync component the roles query and returns the array of roles
+     * rather than a string list of role names
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @return array array of role records
+     */
+    public static function get_user_roles_in_course($userid, $courseid) {
+        global $CFG, $DB;
+        if ($courseid == SITEID) {
+            $context = context_system::instance();
+        } else {
+            $context = context_course::instance($courseid);
+        }
+        // If the current user can assign roles, then they can see all roles on the profile and participants page,
+        // provided the roles are assigned to at least 1 user in the context. If not, only the policy-defined roles.
+        if (has_capability('moodle/role:assign', $context)) {
+            $rolesinscope = array_keys(get_all_roles($context));
+        } else {
+            $rolesinscope = empty($CFG->profileroles) ? [] : array_map('trim', explode(',', $CFG->profileroles));
+        }
+        if (empty($rolesinscope)) {
+            return '';
+        }
+
+        list($rallowed, $params) = $DB->get_in_or_equal($rolesinscope, SQL_PARAMS_NAMED, 'a');
+        list($contextlist, $cparams) = $DB->get_in_or_equal($context->get_parent_context_ids(true), SQL_PARAMS_NAMED, 'p');
+        $params = array_merge($params, $cparams);
+
+        if ($coursecontext = $context->get_course_context(false)) {
+            $params['coursecontext'] = $coursecontext->id;
+        } else {
+            $params['coursecontext'] = 0;
+        }
+
+        $sql = "SELECT DISTINCT r.id, r.name, r.shortname, r.sortorder, rn.name AS coursealias
+                  FROM {role_assignments} ra, {role} r
+             LEFT JOIN {role_names} rn ON (rn.contextid = :coursecontext AND rn.roleid = r.id)
+                 WHERE r.id = ra.roleid
+                       AND ra.contextid $contextlist
+                       AND r.id $rallowed
+                       AND ra.userid = :userid
+                       AND component = 'enrol_sync'
+              ORDER BY r.sortorder ASC";
+        $params['userid'] = $userid;
+
+        $roles = $DB->get_records_sql($sql, $params);
+        return $roles;
     }
 }

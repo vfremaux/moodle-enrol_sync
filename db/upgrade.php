@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the guest enrolment plugin.
+ * This file keeps track of upgrades to the sync enrolment plugin.
  *
  * @package    enrol_sync
  * @author  2017 Valery Frémaux {@link http://www.mylearningfactory.com}
