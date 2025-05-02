@@ -37,17 +37,9 @@ $string['status_help'] = 'This setting determines whether a user can access the 
 $string['status_link'] = 'enrol/synced';
 $string['sync:config'] = 'Peut configurer';
 
-<<<<<<< HEAD
-$string['pluginname_desc'] = 'Ce plugin n\'est pas interactif et sert à la spécialisation des inscriptions obtenues par synchronisation
-automatique par des fichiers CSV, ou par des agents d\'alimentation automatisés.';
-<<<<<<< HEAD
-=======
-=======
 $string['pluginname_desc'] = 'Ce plugin n\'est pas interactif et sert à la spécialisation des inscriptions obtenues par
 synchronisation automatique par des fichiers CSV, ou par des agents d\'alimentation automatisés.';
->>>>>>> MOODLE_401_STABLE
 
 $string['wsusercannotassign'] = 'L\'utilisateur courant n\'a pas le droit d\'assigner le role ({$a->roleid}) à cet utilisateur
 ({$a->userid}) dans ce cours ({$a->courseid}).';
 $string['syncpluginnotinstalled'] = 'Le plugin d\'inscription "Sync" n\'a pas été installé ou activé ';
->>>>>>> MOODLE_401_STABLE
